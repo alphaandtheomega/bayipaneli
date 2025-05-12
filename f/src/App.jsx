@@ -14,6 +14,8 @@ import MusteriDuzenle from "./pages/Musteriler/MusteriDuzenle";
 import PaketEkle from "./pages/Paketler/PaketEkle/PaketEkle";
 import PaketListesi from "./pages/Paketler/PaketListesi/PaketListesi";
 import BayiDuzenle from "./pages/Bayiler/BayiDuzenle";
+import ModulListesi from "./pages/Moduller/ModulListesi/ModulListesi";
+import ModulEkle from "./pages/Moduller/ModulEkle/ModulEkle"
 
 
 const router = createBrowserRouter([
@@ -34,7 +36,10 @@ const router = createBrowserRouter([
 
       { path: "paketekle", element: <PaketEkle /> },
       { path: "paketlistesi", element: <PaketListesi /> },
-
+ 
+      
+      { path: "modulekle", element: <ModulEkle /> },
+      { path: "modullistesi", element: <ModulListesi /> },
 
       { path: "ayarlar", element: <Ayarlar /> },
     ],

@@ -74,6 +74,62 @@ app.get('/api/cities', (req, res) => {
     res.status(500).json({ message: 'İl ve ilçe verileri alınamadı: ' + error.message });
   }
 });
+// Modül ekleme api
+app.post('/api/moduller', async (req, res) => {
+  const { 
+    modul_kodu,
+    modul_adi,
+    modul_aciklama,
+         
+  } = req.body;
+
+  
+
+  try {
+    const connection = req.db || await getConnection();
+    const newModul = await connection.query(
+    'INSERT INTO moduller ("modul_kodu", "modul_adi", "modul_aciklama") VALUES ($1, $2, $3) RETURNING *',
+      [modul_kodu, modul_adi, modul_aciklama]
+    );
+    res.status(201).json(newModul.rows[0]);
+  } catch (error) {
+    console.error('Modul kaydedilirken hata oluştu:', error);
+    res.status(500).json({ message: 'Modul kaydedilemedi: ' + error.message });
+  }
+});
+
+// Modül silme API
+app.delete('/api/moduller/:id', async (req, res) => {
+  try {
+    const connection = req.db || await getConnection();
+    const result = await connection.query('DELETE FROM moduller WHERE id = $1 RETURNING *', [req.params.id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Silinecek modül bulunamadı' });
+    }
+    
+    res.status(200).json({ 
+      message: 'Modül başarıyla silindi',
+      deletedModule: result.rows[0] 
+    });
+  } catch (error) {
+    console.error('Modül silinirken hata oluştu:', error);
+    res.status(500).json({ message: 'Modül silinemedi: ' + error.message });
+  }
+});
+
+// Modül listeme api
+app.get('/api/moduller', async (req, res) => {
+  try {
+    const connection = req.db || await getConnection();
+    const result = await connection.query('SELECT * FROM moduller ORDER BY id DESC');
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Modül bilgileri alınırken hata oluştu:', error);
+    res.status(500).json({ message: 'Modül bilgileri alınamadı: ' + error.message });
+  }
+});
+
 //müşteri ekleme api
 app.post('/api/musteriler', async (req, res) => {
   const { 
@@ -325,8 +381,8 @@ app.put('/api/bayiler/:id', async (req, res) => {
 
     const connection = req.db || await getConnection();
     const result = await connection.query(
-      'INSERT INTO bayiler ("bayi_kodu", "bayi_sifre", "unvan", "firma_sahibi", "bayi_tipi", "il", "ilce", "adres", "eposta", "telefon", "cep_telefon", "sorumlu_kisi", "ust_bayi") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
-      [bayi_kodu, bayi_sifre, unvan, firma_sahibi, bayi_tipi, il, ilce, adres, eposta, telefon, cep_telefon, sorumlu_kisi, ust_bayi]
+      'UPDATE bayiler SET "bayi_kodu" = $1, "bayi_sifre" = $2, "unvan" = $3, "firma_sahibi" = $4, "bayi_tipi" = $5, "il" = $6, "ilce" = $7, "adres" = $8, "eposta" = $9, "telefon" = $10, "cep_telefon" = $11, "sorumlu_kisi" = $12, "ust_bayi" = $13 WHERE id = $14 RETURNING *',
+      [bayi_kodu, bayi_sifre, unvan, firma_sahibi, bayi_tipi, il, ilce, adres, eposta, telefon, cep_telefon, sorumlu_kisi, ust_bayi, req.params.id]
     );
     
     if (result.rows.length === 0) {

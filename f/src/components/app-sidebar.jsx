@@ -109,6 +109,20 @@ export function AppSidebar({ onSignOut, ...props }) {
         ],
       },
       {
+        title: "Moduller",
+        url: "#",
+        items: [
+          {
+            title: "Modul Ekle",
+            url: "modulekle",
+          },
+          {
+            title: "Modul Listesi",
+            url: "modullistesi",
+          },
+        ],
+      },
+      {
         title: "auth",
         url: "#",
         items: [
