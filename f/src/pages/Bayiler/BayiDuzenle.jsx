@@ -664,6 +664,9 @@ export default function BayiDuzenle() {
     // Form submit işlemi, sadece kullanıcı butona tıkladığında gerçekleşsin
     if (id && typeof id === "string" && id.trim() !== "") {
       handleBayiMutation.mutate(values);
+      form.reset();
+      navigate("/bayilistesi/");
+      
     } else {
       console.error("Geçersiz ID, form submit işlemi iptal edildi.");
       toast.error("Güncelleme hatası", {

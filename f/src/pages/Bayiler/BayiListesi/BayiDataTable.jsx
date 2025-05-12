@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import * as React from "react" // React import eklendi
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "sonner";
@@ -29,7 +30,7 @@ import {
 import { Label } from "@radix-ui/react-label"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 
-export function DataTable({ columns, data }) {
+export function DataTable({ columns, data, refetch }) {
   const [error, setError] = useState(null); 
   const [filterParams, setFilterParams] = useState({}); // Filtreleme parametrelerini saklayacak state
   const queryClient = useQueryClient(); // QueryClient'ı al
@@ -43,11 +44,28 @@ export function DataTable({ columns, data }) {
   });
   const navigate = useNavigate(); // Hook fonksiyon içine taşındı
   const { id } = useParams(); // URL'den id parametresini al
-  const [filtering, setFiltering] = useState("");
-
-  // React Query ile filtrelenmiş veri çekme
-  const { data: filteredData, isLoading } = useQuery({
-    queryKey: ['filteredBayiler', filterParams],
+  const [filtering, setFiltering] = useState("");  // Ana bayiler verisi değiştiğinde filtrelenmiş verileri güncelle
+  // Bu sayede başka bir sayfada bayiler güncellendiğinde bu liste de güncellenecek
+  React.useEffect(() => {
+    // data prop'u değiştiğinde ve içeriği varsa, ana veriyi direkt kullan (API isteği yapmadan)
+    if (data?.length > 0) {
+      console.log("Data prop'u değişti, filtrelemesiz tablo verilerini güncelliyorum");
+      
+      // Tablo verisi için direkt olarak data prop'unu kullan
+      // Sadece filtre yoksa veriyi güncelle
+      if (!Object.values(filterParams).some(val => val && val.trim !== '')) {
+        // Tüm bayiler/filtre querylerini bul ve güncelle
+        const queriesInCache = queryClient.getQueriesData({ queryKey: ['filteredBayiler'] });
+        
+        // Her bir query için cache'i güncelle
+        queriesInCache.forEach(([queryKey]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    }
+  }, [data, queryClient]);// React Query ile filtrelenmiş veri çekme
+  const { data: filteredData, isLoading, isRefetching } = useQuery({
+    queryKey: ['filteredBayiler', filterParams],  // data'yı çıkardık, gereksiz bağımlılık oluşturuyordu
     queryFn: async () => {
       try {
         // Filtreleme parametreleri varsa onları kullan, yoksa tüm verileri getir
@@ -63,6 +81,7 @@ export function DataTable({ columns, data }) {
             }
           });
           
+          console.log("Filtreleme isteği yapılıyor");
           // Filtreleme API'sine istek gönder
           const response = await axios.get(`http://localhost:3001/api/bayiler/filter?${queryParams.toString()}`);
           
@@ -71,21 +90,20 @@ export function DataTable({ columns, data }) {
             toast.info("Filtreleme sonucu", {
               description: "Arama kriterlerine uygun kayıt bulunamadı.",
             });
-          } else {
-            toast.success("Filtreleme başarılı", {
-              description: `${response.data.length} kayıt bulundu.`,
-            });
           }
           
           return response.data;
         } else {
-          // Tüm verileri getir
+          // Eğer filtreleme parametresi yoksa ve parent'tan gelen data varsa, onu kullan
+          // Gereksiz API çağrısı yapma
+          if (data) {
+            console.log("Filtresiz verileri data prop'undan kullanıyorum - API çağrısı yok");
+            return data; // Direkt olarak parent'tan gelen veriyi döndür
+          }
+          
+          // Bu duruma pek düşülmemeli - veri yoksa ve filtre yoksa
+          console.log("API'dan tüm verileri getiriyorum - Bu normalde olmamalı");
           const response = await axios.get("http://localhost:3001/api/bayiler");
-          
-          toast.success("Tüm veriler getirildi", {
-            description: `Toplam ${response.data.length} kayıt listelendi.`,
-          });
-          
           return response.data;
         }
       } catch (error) {
@@ -94,25 +112,71 @@ export function DataTable({ columns, data }) {
         toast.error("Veri çekme hatası", {
           description: error.response?.data?.message || "Veriler çekilirken bir hata oluştu.",
         });
-        throw error; // React Query hata yönetimi için hatayı fırlat
+        throw error;
       }
     },
-    // İlk yüklemede sorguyu çalıştırma, yalnızca filtreleme parametreleri değiştiğinde çalıştır
-    enabled: Object.keys(filterParams).length > 0,
+    // Sadece filterParams değiştiğinde etkinleştir, data prop'unda değişiklik olduğunda etkinleştirme
+    enabled: Object.values(filterParams).some(val => val && val.trim !== ''),
     // Başlangıçta data prop'unu kullan
     initialData: data,
     // Sekme değişimlerinde otomatik yeniden çekmeyi devre dışı bırak
     refetchOnWindowFocus: false,
     // Ağ bağlantısı geri geldiğinde otomatik yeniden çekmeyi devre dışı bırak
-    refetchOnReconnect: false
-  });
-
-  // Form gönderildiğinde çalışacak fonksiyon
+    refetchOnReconnect: false,
+    // Stale time'ı arttır - 5 dakika içinde tekrar çekilmesin
+    staleTime: 5 * 60 * 1000,
+    // Cache süresi arttırıldı
+    cacheTime: 10 * 60 * 1000
+  });  // Form gönderildiğinde çalışacak fonksiyon
   function onSubmit(values) {
     console.log("Form Verileri:", values);
-    // Filtreleme parametrelerini güncelle, React Query otomatik olarak yeni sorguyu tetikleyecek
-    setFilterParams(values);
+    
+    // Filtreleme parametreleri var mı kontrol et
+    const hasFilters = Object.values(values).some(val => val && val.trim !== '');
+    
+    if (hasFilters) {
+      // Filtreleme parametreleri varsa, bunlarla filtreleme yap
+      console.log("Filtre parametreleri var, filtreleme sorgusu yapılacak");
+      setFilterParams(values);
+    } else {
+      // Filtre yoksa, filterParams'ı sıfırla ve mevcut verileri göster
+      console.log("Filtre parametreleri yok, tüm verileri göster");
+      setFilterParams({});
+      // Mevcut verileri direkt kullan, API isteği yapma
+      if (data) {
+        queryClient.setQueryData(['filteredBayiler', {}], data);
+      }
+    }
   }
+  
+  // Herhangi bir işlem yapıldığında verileri yenilemek için kullanılabilecek fonksiyon
+  const refreshData = () => {
+    console.log("Yenileme butonu tıklandı");
+    // Form'u sıfırla
+    form.reset({
+      bayi_kodu: "",
+      unvan: "",
+      firma_sahibi: "",
+    });
+    
+    // Filtreleri temizle
+    setFilterParams({});
+    
+    // Önbelleği temizle ve veriyi ana kaynaktan yenile
+    queryClient.removeQueries(['filteredBayiler']);
+    
+    // Ana listeyi yenile (Bu tek API isteği yapacak)
+    refetch().then((result) => {
+      if (result.data) {
+        // Yeni veri geldiğinde filtresiz sorguya kaydet
+        queryClient.setQueryData(['filteredBayiler', {}], result.data);
+        
+        toast.success("Veriler güncellendi", {
+          description: `${result.data.length} kayıt başarıyla yenilendi.`,
+        });
+      }
+    });
+  };
 
   // Table yapılandırması
   const table = useReactTable({
@@ -225,15 +289,19 @@ export function DataTable({ columns, data }) {
                   </div>
                   {/* </div> */}
         </form>
-      </Form>
-      <div className="flex items-center py-2 ">
+      </Form>      <div className="flex items-center py-2 justify-between">
         <Input
           placeholder="Tüm alanlarda arama yapın..."
           value={filtering}
           onChange={(e) => setFiltering(e.target.value)}
           className="max-w-sm h-8"
         />
-       
+        <Button
+          onClick={refreshData}
+          className="bg-green-600 hover:bg-green-700 text-white h-8 text-sm px-3 py-0"
+        >
+          Yenile
+        </Button>
       </div>
       <div className="flex-1 min-h-0">
         <div className="h-full rounded-md border overflow-auto">

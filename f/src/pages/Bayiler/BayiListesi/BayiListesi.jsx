@@ -7,10 +7,11 @@ import axios from "axios"
 import { toast } from "sonner"
 
 export default function BayiListesi() {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["bayiler"],
     queryFn: async () => {
       try {
+        console.log("API isteği yapılıyor: /api/bayiler");
         const response = await axios.get("http://localhost:3001/api/bayiler");
         return response.data || [];
       } catch (error) {
@@ -21,7 +22,9 @@ export default function BayiListesi() {
     // Sekme değişimlerinde otomatik yeniden çekmeyi devre dışı bırak
     refetchOnWindowFocus: false,
     // Ağ bağlantısı geri geldiğinde otomatik yeniden çekmeyi devre dışı bırak
-    refetchOnReconnect: false
+    refetchOnReconnect: false,
+    // Stale time'ı arttır - 5 dakika içinde tekrar çekilmesin
+    staleTime: 5 * 60 * 1000
   });
 
   if (isLoading) {
@@ -62,10 +65,9 @@ export default function BayiListesi() {
               <h1 className="text-2xl font-bold">Bayi Listesi</h1>
               
             </div>
-          </div>  
-          <div className="flex-1 p-4 min-h-0">
+          </div>          <div className="flex-1 p-4 min-h-0">
             <div className="h-full overflow-hidden">
-              <DataTable columns={columns} data={data || []} />
+              <DataTable columns={columns} data={data || []} refetch={refetch} />
             </div>
           </div>
         </div>
