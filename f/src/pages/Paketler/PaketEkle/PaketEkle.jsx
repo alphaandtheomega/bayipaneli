@@ -1,0 +1,216 @@
+"use client";
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import axios from "axios";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import { useEffect } from "react";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+
+const formSchema = z.object({
+  paket_kodu: z.string().min(1, "Paket gerekli"),
+  paket_adi: z.string().min(1, "Paket gerekli"),
+  paket_aciklama: z.string().min(1, "Paket gerekli"),
+});
+
+export default function PaketEkle() {
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
+  const queryClient = useQueryClient();
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      paket_kodu: "",
+      paket_adi: "",
+      paket_aciklama: "",
+    },
+  });
+
+  const createPaketMutation = useMutation({
+    mutationFn: (PaketData) => {
+      return axios.post("http://localhost:3001/api/paketler", PaketData);
+    },
+    onSuccess: () => {
+      setSuccess(true);
+      setError(null);
+      form.reset();
+
+      toast.success("Paket başarıyla eklendi", {
+        description: "İşlem başarıyla tamamlandı",
+        style: {
+          backgroundColor: "#dcfce7",
+          border: "1px solid #86efac",
+          color: "#166534",
+        },
+      });
+    },
+    onError: (error) => {
+      toast.error("Hata", {
+        description:
+          error.response?.data?.message || "Paket eklenirken bir hata oluştu",
+        style: {
+          backgroundColor: "#fee2e2",
+          border: "1px solid #fca5a5",
+          color: "#991b1b",
+        },
+      });
+      setSuccess(false);
+    },
+  });
+
+  function onSubmit(values) {
+    // Form verilerini konsola yazdır
+    console.log("Form Verileri:", values);
+
+    // Form doğrulaması sırasında hataları konsola yazdır
+    console.log("Form hataları:", form.formState.errors);
+
+    // API'ye form verilerini gönder
+    setSuccess(false);
+    setError(null);
+    createPaketMutation.mutate(values);
+  }
+
+  return (
+    <>
+      <div className="h-full w-full">
+        <div className="h-full w-full p-1">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="bg-white p-4 rounded-lg shadow-md max-h-[calc(100vh-120px)] overflow-y-auto shadow-slate-300  "
+            >
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 text-m">
+                  {error}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
+                {/* Paket Kodu */}
+                <FormField
+                  control={form.control}
+                  name="paket_kodu"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-slate-700 font-medium text-m">
+                        Paket Kodu
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Paket Kodu"
+                          className="bg-white border-slate-300 focus:border-blue-500 h-8 text-m shadow-sm shadow-blue-200"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[10px]" />
+                    </FormItem>
+                  )}
+                />
+                {/* Paket Adı */}
+                <FormField
+                  control={form.control}
+                  name="paket_adi"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-slate-700 font-medium text-m">
+                        Paket Adı
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Paket Adı"
+                          className="bg-white border-slate-300 focus:border-blue-500 h-8 text-m shadow-sm shadow-blue-200"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[10px]" />
+                    </FormItem>
+                  )}
+                />
+                {/* Paket Açıklama */}
+                <FormField
+                  control={form.control}
+                  name="paket_aciklama"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-slate-700 font-medium text-m">
+                        Paket Açıklama
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Paket Açıklama"
+                          className="bg-white border-slate-300 focus:border-blue-500 h-8 text-m shadow-sm shadow-blue-200"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-[10px]" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-2 md:flex-row md:items-end mt-5">
+                <Button
+                  type="button"
+                  onClick={() => form.reset()}
+                  className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-3 py-0 pl-4 pr-4 mr-5 "
+                >
+                  İptal
+                </Button>
+
+                <Button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 text-sm px-3 py-0 pl-4 pr-4"
+                >
+                  Kaydet
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </div>
+    </>
+  );
+}
