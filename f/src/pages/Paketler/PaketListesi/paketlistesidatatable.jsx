@@ -193,7 +193,7 @@ export default function PaketListesiDataTable({ columns, data }) {  const { id }
                     <Button
                       className="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
                       onClick={() => {
-                        navigate(`/paket/${row.original.id}`);
+                        navigate(`/paketduzenle/${row.original.id}`);
                         console.log("Row clicked:", row.original);
                       }}
                     >
