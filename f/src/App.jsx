@@ -16,6 +16,7 @@ import PaketListesi from "./pages/Paketler/PaketListesi/PaketListesi";
 import BayiDuzenle from "./pages/Bayiler/BayiDuzenle";
 import ModulListesi from "./pages/Moduller/ModulListesi/ModulListesi";
 import ModulEkle from "./pages/Moduller/ModulEkle/ModulEkle"
+import ModulDuzenle from "./pages/Moduller/ModulDuzenle";
 
 
 const router = createBrowserRouter([
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
       
       { path: "modulekle", element: <ModulEkle /> },
       { path: "modullistesi", element: <ModulListesi /> },
+      { path: "modulduzenle/:id", element: <ModulDuzenle /> },
 
       { path: "ayarlar", element: <Ayarlar /> },
     ],

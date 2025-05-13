@@ -343,8 +343,7 @@ export default function MusteriDuzenle() {
           },
         });
 
-        // Müşteri verisini yeniden çekmek için invalidate
-        queryClient.invalidateQueries(["musteri", id]);
+  
       } else {
         form.reset();
         toast.success("Müşteri başarıyla eklendi", {
@@ -401,6 +400,8 @@ export default function MusteriDuzenle() {
     setSuccess(false);
     setError(null);
     handleMusteriMutation.mutate(values);
+    form.reset();
+    navigate(`/musteri/${id}`);
   }
 
   return (

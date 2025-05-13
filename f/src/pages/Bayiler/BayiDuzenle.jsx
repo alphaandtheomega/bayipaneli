@@ -626,8 +626,7 @@ export default function BayiDuzenle() {
           },
         });
 
-        // Müşteri verisini yeniden çekmek için invalidate
-        queryClient.invalidateQueries(["bayiler", id]);
+  
       } else {
         form.reset();
         toast.success("Müşteri başarıyla eklendi", {
