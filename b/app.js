@@ -250,94 +250,17 @@ app.post("/api/bayiler", async (req, res) => {
     res.status(500).json({ message: "Bayi kaydedilemedi: " + error.message });
   }
 });
-//paket ekleme api
+// paket ekleme api
 app.post("/api/paketler", async (req, res) => {
-  const { paket_kodu, paket_adi, paket_aciklama, items } = req.body;
+  const { paket_kodu, paket_adi, paket_aciklama } = req.body;
 
   try {
-    // Gelen değerleri loglama
-    console.log("Paket kaydı:", { paket_kodu, paket_adi, paket_aciklama });
-    console.log("Seçilen modüller:", items);
-
     const connection = req.db || (await getConnection());
-    
-    // Önce transaction başlat
-    await connection.query('BEGIN');
-    
-    try {
-      const newPaket = await connection.query(
-        'INSERT INTO paketler ("paket_kodu", "paket_adi", "paket_aciklama") VALUES ($1, $2, $3) RETURNING *',
-        [paket_kodu, paket_adi, paket_aciklama]
-      );
-
-      const paketId = newPaket.rows[0].id;
-      console.log("Oluşturulan paket ID:", paketId);
-
-      // 2. Seçilen modülleri ara tabloya ekle
-      if (items && items.length > 0) {
-        console.log(`${items.length} adet modül eklenmeye çalışılıyor`);
-        
-        // Modül kodlarını tekrarları kaldırarak işle
-        const uniqueItems = [...new Set(items)];
-        console.log(`Tekrarları kaldırıldıktan sonra ${uniqueItems.length} benzersiz modül kaldı`);
-        
-        // Her bir benzersiz item için modül bilgisini al ve ara tabloya ekle
-        for (const item of uniqueItems) {
-          console.log(`Aranan modül kodu: ${item}`);
-          
-          // İlgili modülü bul - önce id ile kontrol et, sonra kod ile
-          let modulResult = await connection.query(
-            'SELECT id FROM moduller WHERE id = $1',
-            [item]
-          );
-          
-          // ID ile bulunamadıysa, modul_kodu ile dene
-          if (modulResult.rows.length === 0) {
-            modulResult = await connection.query(
-              'SELECT id FROM moduller WHERE modul_kodu = $1',
-              [item]
-            );
-          }
-          
-          console.log(`"${item}" için bulunan modül sayısı: ${modulResult.rows.length}`);
-          
-          // Eğer modül bulunduysa, paket-modül ilişkisini kaydet
-          if (modulResult.rows.length > 0) {
-            const modulId = modulResult.rows[0].id;
-            console.log(`İlişki oluşturuluyor: paket_id=${paketId}, modul_id=${modulId}`);
-            
-            // İlişkinin daha önce var olup olmadığını kontrol et
-            const existingRelation = await connection.query(
-              'SELECT 1 FROM paketler_modul WHERE paketler_id = $1 AND moduller_id = $2',
-              [paketId, modulId]
-            );
-            
-            // İlişki yoksa ekle
-            if (existingRelation.rows.length === 0) {
-              await connection.query(
-                'INSERT INTO paketler_modul(paketler_id, moduller_id) VALUES($1, $2)',
-                [paketId, modulId]
-              );
-              console.log("İlişki başarıyla kaydedildi");
-            } else {
-              console.log(`Uyarı: Paket ${paketId} ile Modül ${modulId} arasındaki ilişki zaten var, atlanıyor`);
-            }
-          } else {
-            console.log(`Dikkat: "${item}" kodlu veya ID'li modül veritabanında bulunamadı`);
-          }
-        }
-      }
-        // Transaction'ı tamamla
-      await connection.query('COMMIT');
-      console.log("Paket kaydı başarıyla tamamlandı");
-      
-      res.status(201).json(newPaket.rows[0]);
-    } catch (err) {
-      // Hata durumunda transaction'ı geri al
-      await connection.query('ROLLBACK');
-      console.error("Paket kayıt işlemi sırasında hata:", err);
-      throw err;
-    }
+    const newPaket = await connection.query(
+      'INSERT INTO paketler ("paket_kodu", "paket_adi", "paket_aciklama") VALUES ($1, $2, $3) RETURNING *',
+      [paket_kodu, paket_adi, paket_aciklama]
+    );
+    res.status(201).json(newPaket.rows[0]);
   } catch (error) {
     console.error("Paket kaydedilirken hata oluştu:", error);
     res.status(500).json({ message: "Paket kaydedilemedi: " + error.message });
