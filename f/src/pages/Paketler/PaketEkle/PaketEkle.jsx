@@ -48,7 +48,7 @@ const items = [
 ]
 
 const formSchema = z.object({
- items: z.array(z.number()).refine((value) => value.length > 0, {
+ items: z.array(z.string()).refine((value) => value.length > 0, {
     message: "En az bir modül seçmelisiniz.",
   }),
   paket_adi: z.string().min(1, "Paket gerekli"),
@@ -256,13 +256,13 @@ const {
                       >
                         <FormControl>
                           <Checkbox
-                            checked={field.value?.includes(item.id)}
+                            checked={field.value?.includes(item.modul_adi)}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, item.id])
+                                ? field.onChange([...field.value, item.modul_adi])
                                 : field.onChange(
                                     field.value?.filter(
-                                      (value) => value !== item.id
+                                      (value) => value !== item.modul_adi
                                     )
                                   )
                             }}
