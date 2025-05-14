@@ -66,6 +66,20 @@ export function AppSidebar({ onSignOut, ...props }) {
       avatar: isSignedIn ? user?.imageUrl : "/avatars/shadcn.jpg",
     },
     navMain: [
+            {
+        title: "Lisanslar",
+        url: "#",
+        items: [
+          {
+            title: "Lisans Ekle",
+            url: "lisansekle",
+          },
+          {
+            title: "Lisans Listesi",
+            url: "lisanslistesi",
+          },
+        ],
+      },
       {
         title: "Müşteriler",
         url: "#",

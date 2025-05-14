@@ -18,6 +18,9 @@ import ModulListesi from "./pages/Moduller/ModulListesi/ModulListesi";
 import ModulEkle from "./pages/Moduller/ModulEkle/ModulEkle"
 import ModulDuzenle from "./pages/Moduller/ModulDuzenle";
 import PaketDuzenle from "./pages/Paketler/PaketDuzenle";
+import LisansEkle from "./pages/Lisanslar/LisansEkle/LisansEkle";
+import LisansListesi from "./pages/Lisanslar/LisansListesi/LisansListesi";
+import LisansDuzenle from "./pages/Lisanslar/LisansDuzenle";
 
 
 const router = createBrowserRouter([
@@ -26,6 +29,11 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       { path: "", element: <Dashboard /> },
+
+      { path: "lisansekle", element: <LisansEkle/>},
+      { path: "lisanslistesi", element: <LisansListesi/> },
+      { path: "lisansduzenle/:id", element: <LisansDuzenle/> },
+
       { path: "musteriekle", element: <MusteriEkle /> },
       { path: "musterilistesi", element: <MusteriListesi /> },
       { path: "musteri/:id", element: <MusteriDashboard /> },
