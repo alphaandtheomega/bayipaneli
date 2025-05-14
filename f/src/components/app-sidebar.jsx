@@ -122,19 +122,7 @@ export function AppSidebar({ onSignOut, ...props }) {
           },
         ],
       },
-      {
-        title: "auth",
-        url: "#",
-        items: [
-          {
-            title: "Kayıt Ol",
-            url: "signup",
-          }, {
-            title: "Giriş yap",
-            url: "login",
-          },
-        ],
-      },
+ 
       {
         title: "Ayarlar",
         url: "#",

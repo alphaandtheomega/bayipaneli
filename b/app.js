@@ -351,7 +351,7 @@ app.get("/api/paketler/:id", async (req, res) => {
   try {
     const connection = req.db || (await getConnection());
     
-    // Önce paketi çek
+    // Paketi çek
     const paketResult = await connection.query(
       "SELECT * FROM paketler WHERE id = $1",
       [req.params.id]
@@ -361,26 +361,11 @@ app.get("/api/paketler/:id", async (req, res) => {
       return res.status(404).json({ message: "Bu ID'ye sahip paket bulunamadı" });
     }
     
-    // Paket modüllerini çek (ilişkili modülleri almak için INNER JOIN kullan)
-    const modullerResult = await connection.query(
-      `SELECT m.id, m.modul_kodu, m.modul_adi, m.modul_aciklama
-       FROM moduller m
-       INNER JOIN paketler_modul pm ON m.id = pm.moduller_id
-       WHERE pm.paketler_id = $1
-       ORDER BY m.modul_adi`,
-      [req.params.id]
-    );
-    
-    // Paketi modüllerle birlikte döndür
-    const paketWithModuller = {
-      ...paketResult.rows[0],
-      moduller: modullerResult.rows
-    };
-    
-    res.status(200).json([paketWithModuller]); // Array formatında döndür (mevcut yanıt yapısını korumak için)
+    // Paketi doğrudan döndür
+    res.status(200).json(paketResult.rows);
   } catch (error) {
-    console.error("Paket ve modülleri alınırken hata oluştu:", error);
-    res.status(500).json({ message: "Paket ve modülleri alınamadı: " + error.message });
+    console.error("Paket alınırken hata oluştu:", error);
+    res.status(500).json({ message: "Paket alınamadı: " + error.message });
   }
 });
 
@@ -521,6 +506,44 @@ app.put("/api/musteriler/:id", async (req, res) => {
     res
       .status(500)
       .json({ message: "Müşteri güncellenemedi: " + error.message });
+  }
+});
+// Paket duzenle güncelleme API
+app.put("/api/paketler/:id", async (req, res) => {
+  try {
+    const { paket_kodu, paket_adi, paket_aciklama, items } = req.body;
+
+  
+    // Array'i JSON string'e dönüştür
+    const itemsJson = JSON.stringify(items);
+
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      'UPDATE paketler SET "paket_kodu" = $1, "paket_adi" = $2, "paket_aciklama" = $3, "paket_modul" = $4 WHERE id = $5 RETURNING *',
+      [
+        paket_kodu,
+        paket_adi,
+        paket_aciklama,
+        itemsJson,
+        req.params.id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Güncellenecek paket bulunamadı" });
+    }
+
+    res.status(200).json({
+      message: "Paket başarıyla güncellendi",
+      updatedCustomer: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Paket güncellenirken hata oluştu:", error);
+    res
+      .status(500)
+      .json({ message: "Paket güncellenemedi: " + error.message });
   }
 });
 // Modül güncelleme API
