@@ -500,18 +500,18 @@ export default function MusteriEkle() {
     },
   });
 
-  function onSubmit(values) {
-    // Form verilerini konsola yazdır
-    console.log("Form Verileri:", values);
+    function onSubmit(values) {
+      // Form verilerini konsola yazdır
+      console.log("Form Verileri:", values);
 
-    // Form doğrulaması sırasında hataları konsola yazdır
-    console.log("Form hataları:", form.formState.errors);
+      // Form doğrulaması sırasında hataları konsola yazdır
+      console.log("Form hataları:", form.formState.errors);
 
-    // API'ye form verilerini gönder
-    setSuccess(false);
-    setError(null);
-    createMusteriMutation.mutate(values);
-  }
+      // API'ye form verilerini gönder
+      setSuccess(false);
+      setError(null);
+      createMusteriMutation.mutate(values);
+    }
 
   return (
     <>

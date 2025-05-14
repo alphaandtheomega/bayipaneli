@@ -124,6 +124,25 @@ app.post("/api/moduller", async (req, res) => {
     res.status(500).json({ message: "Modul kaydedilemedi: " + error.message });
   }
 });
+// test ekleme api
+app.post("/api/test", async (req, res) => {
+  const { items, paket_adi  } = req.body;
+
+  try {
+    const connection = req.db || (await getConnection());
+    // Array'i JSON string'e dönüştür
+    const itemsJson = JSON.stringify(items);
+    
+    const newTest = await connection.query(
+      'INSERT INTO test ("items", "paket_adi") VALUES ($1, $2) RETURNING *',
+      [itemsJson, paket_adi]
+    );
+    res.status(201).json(newTest.rows[0]);
+  } catch (error) {
+    console.error("Test kaydedilirken hata oluştu:", error);
+    res.status(500).json({ message: "Test kaydedilemedi: " + error.message });
+  }
+});
 
 // Modül silme API
 app.delete("/api/moduller/:id", async (req, res) => {
@@ -252,15 +271,18 @@ app.post("/api/bayiler", async (req, res) => {
 });
 // paket ekleme api
 app.post("/api/paketler", async (req, res) => {
-  const { paket_kodu, paket_adi, paket_aciklama } = req.body;
+  const { items, paket_kodu, paket_adi, paket_aciklama  } = req.body;
 
   try {
     const connection = req.db || (await getConnection());
-    const newPaket = await connection.query(
-      'INSERT INTO paketler ("paket_kodu", "paket_adi", "paket_aciklama") VALUES ($1, $2, $3) RETURNING *',
-      [paket_kodu, paket_adi, paket_aciklama]
+    // Array'i JSON string'e dönüştür
+    const itemsJson = JSON.stringify(items);
+    
+    const newTest = await connection.query(
+      'INSERT INTO paketler ("paket_modul", "paket_kodu", "paket_adi", "paket_aciklama") VALUES ($1, $2, $3, $4) RETURNING *',
+      [itemsJson, paket_kodu, paket_adi, paket_aciklama]
     );
-    res.status(201).json(newPaket.rows[0]);
+    res.status(201).json(newTest.rows[0]);
   } catch (error) {
     console.error("Paket kaydedilirken hata oluştu:", error);
     res.status(500).json({ message: "Paket kaydedilemedi: " + error.message });

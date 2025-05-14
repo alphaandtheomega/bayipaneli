@@ -25,6 +25,13 @@ export const paketlistesicolumns = [
     minSize: 100,
     maxSize: 120
   },
+  {
+    accessorKey: "paket_modul",
+    header: "Modüller",
+    size: 100,
+    minSize: 100,
+    maxSize: 120
+  },
      
 ];
   
