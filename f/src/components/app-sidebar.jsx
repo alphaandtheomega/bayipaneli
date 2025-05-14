@@ -284,7 +284,7 @@ export function AppSidebar({ onSignOut, ...props }) {
                   >
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="hover:bg-indigo-100">
+                        <SidebarMenuButton >
                           {item.title}{" "}
                           <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
                           <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
@@ -295,13 +295,13 @@ export function AppSidebar({ onSignOut, ...props }) {
                           <SidebarMenuSub >
                             {item.items.map((subItem) => (
                               <SidebarMenuSubItem key={subItem.title} >
-                                <SidebarMenuSubButton className="hover:bg-indigo-100" asChild>
+                                <SidebarMenuSubButton  asChild>
                                   <NavLink
                                     to={subItem.url}
                                     className={
                                       activeItem === subItem.title
-                                        ? "bg-indigo-100 text-indigo-800 font-medium rounded-md px-3 py-2 flex items-center border-l-4 border-indigo-500" // 
-                                        : "hover:bg-indigo-50 hover:text-indigo-600 text-sidebar-foreground px-3 py-2 rounded-md transition-colors duration-75"
+                                        ? "bg-indigo-100  font-medium rounded-md px-3 py-2 flex items-center border-l-4 border-indigo-500" // 
+                                        : " text-sidebar-foreground px-3 py-2 rounded-md transition-colors duration-75"
                                     }
                                     onClick={() => handleItemClick(subItem.title)}
                                   >
