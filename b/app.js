@@ -304,6 +304,37 @@ app.get("/api/bayiler/unvan", async (req, res) => {
       .json({ message: "Bayi ünvanları alınamadı: " + error.message });
   }
 });
+// Müşteri ünvanları listeleme api
+app.get("/api/musteri/unvan", async (req, res) => {
+  try {
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      "SELECT id, unvan FROM musteri ORDER BY unvan"
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Müşteri ünvanları alınırken hata oluştu:", error);
+    res
+      .status(500)
+      .json({ message: "Müşteri ünvanları alınamadı: " + error.message });
+  }
+});
+// Paket adlarını listeleme api
+app.get("/api/paket/paket_adi", async (req, res) => {
+  try {
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      "SELECT id, paket_adi FROM paketler ORDER BY paket_adi"
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Paket adları alınırken hata oluştu:", error);
+    res
+      .status(500)
+      .json({ message: "Paket adları  alınamadı: " + error.message });
+  }
+});
+
 // Paket listeme api
 app.get("/api/paketler", async (req, res) => {
   try {
