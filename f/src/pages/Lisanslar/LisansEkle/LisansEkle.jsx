@@ -61,12 +61,12 @@ export default function LisansEkle() {
   const [openBayi, setOpenBayi] = React.useState(false);
   const [selectedBayi, setSelectedBayi] = useState(null);
   const [openMusteri, setOpenMusteri] = React.useState(false);
-  const [selectedMusteri, setSelectedMusteri] = useState(null);  
+  const [selectedMusteri, setSelectedMusteri] = useState(null);
   const [openPaket, setOpenPaket] = React.useState(false);
   const [selectedPaket, setSelectedPaket] = useState(null);
   const [selectedPaketId, setSelectedPaketId] = useState(null);
   const queryClient = useQueryClient();
-    // Form tanımlaması
+  // Form tanımlaması
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,7 +76,7 @@ export default function LisansEkle() {
       items: [],
     },
   });
-  
+
   //modülleri getirmek için useQuery kullanımı
   const {
     data: modulPaketDuzenleData,
@@ -101,36 +101,36 @@ export default function LisansEkle() {
     // Ağ bağlantısı geri geldiğinde otomatik yeniden çekmeyi devre dışı bırak
     refetchOnReconnect: false,
   });
-  
+
   // Seçilen paket ID'sine göre modülleri getiren fonksiyon
   const fetchPaketModules = (armut) => {
     setSelectedPaketId(armut);
   };
 
   // Seçilen paket ID'sine göre modülleri getiren sorgu
-  const {
-    data: paketModulleri,
-    isLoading: paketModulleriLoading,
-  } = useQuery({
+  const { data: paketModulleri, isLoading: paketModulleriLoading } = useQuery({
     queryKey: ["paketModulleri", selectedPaketId],
     queryFn: async () => {
       if (!selectedPaketId) return null;
-      
-      try {        const response = await axios.get(
+
+      try {
+        const response = await axios.get(
           `http://localhost:3001/api/paketler/${selectedPaketId}`
         );
         console.log("Paket modülleri yüklendi:", response.data);
         // API yanıtının yapısını kontrol et
         if (response.data && Array.isArray(response.data)) {
-          console.log("Paket modül verileri detayı:", 
-            response.data.length > 0 ? 
-            {
-              paket_id: response.data[0].id,
-              paket_adi: response.data[0].paket_adi,
-              paket_modul: response.data[0].paket_modul,
-              paket_modul_type: typeof response.data[0].paket_modul
-            } : 
-            "Boş dizi");
+          console.log(
+            "Paket modül verileri detayı:",
+            response.data.length > 0
+              ? {
+                  paket_id: response.data[0].id,
+                  paket_adi: response.data[0].paket_adi,
+                  paket_modul: response.data[0].paket_modul,
+                  paket_modul_type: typeof response.data[0].paket_modul,
+                }
+              : "Boş dizi"
+          );
         }
         return response.data;
       } catch (error) {
@@ -143,9 +143,14 @@ export default function LisansEkle() {
     },
     enabled: !!selectedPaketId, // burada değişiklik!
     refetchOnWindowFocus: false,
-  });  // Paket modülleri yüklendiğinde form alanlarını güncelle
+  }); // Paket modülleri yüklendiğinde form alanlarını güncelle
   useEffect(() => {
-    if (paketModulleri && Array.isArray(paketModulleri) && paketModulleri.length > 0 && modulPaketDuzenleData) {
+    if (
+      paketModulleri &&
+      Array.isArray(paketModulleri) &&
+      paketModulleri.length > 0 &&
+      modulPaketDuzenleData
+    ) {
       const paket = paketModulleri[0];
 
       // Eğer paket_modul bir string ise parse et
@@ -161,29 +166,34 @@ export default function LisansEkle() {
           console.error("paket_modul parse edilemedi:", e);
         }
       }
-      
+
       // Form alanlarını paket verileriyle doldur
       console.log("Paket modülleri yüklendi, değerler ayarlanıyor:", items);
       console.log("Mevcut form değerleri:", form.getValues());
-      
+
       // Kontrol: Form değerleri ile mevcut modül adları uyumlu mu?
       if (modulPaketDuzenleData && modulPaketDuzenleData.length > 0) {
-        console.log("Mevcut modüller:", modulPaketDuzenleData.map(m => m.modul_adi));
-        console.log("Seçilen paket modülleri:", items);
-        
-        // items dizisi içindeki her bir öğenin modulPaketDuzenleData içinde karşılığı var mı kontrol et
-        const validItems = items.filter(item => 
-          modulPaketDuzenleData.some(modul => modul.modul_adi === item)
+        console.log(
+          "Mevcut modüller:",
+          modulPaketDuzenleData.map((m) => m.modul_adi)
         );
-        
+        console.log("Seçilen paket modülleri:", items);
+
+        // items dizisi içindeki her bir öğenin modulPaketDuzenleData içinde karşılığı var mı kontrol et
+        const validItems = items.filter((item) =>
+          modulPaketDuzenleData.some((modul) => modul.modul_adi === item)
+        );
+
         if (validItems.length !== items.length) {
-          console.warn("Bazı modül adları sistemde bulunan modüllerle eşleşmiyor!");
+          console.warn(
+            "Bazı modül adları sistemde bulunan modüllerle eşleşmiyor!"
+          );
           console.log("Geçerli modüller:", validItems);
           // Sadece geçerli olanları kullan
           items = validItems;
         }
       }
-      
+
       // Form alanlarını temizle ve sonra değerleri ayarla
       setTimeout(() => {
         form.setValue("items", items || []);
@@ -325,8 +335,11 @@ export default function LisansEkle() {
       // Form alanlarını paket verileriyle doldur
       const formValues = {
         items: items,
-      };      console.log("Form değerleri yükleniyor:", formValues);
-      form.reset(formValues);    }}, [paketIdData, form]);
+      };
+      console.log("Form değerleri yükleniyor:", formValues);
+      form.reset(formValues);
+    }
+  }, [paketIdData, form]);
   const createModulMutation = useMutation({
     mutationFn: (ModulData) => {
       return axios.post("http://localhost:3001/api/moduller", ModulData);
@@ -371,65 +384,58 @@ export default function LisansEkle() {
   }
 
   return (
-    <>
-      <div className="h-full w-full">
-        <div className="h-full w-full p-1">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="bg-white p-4 rounded-lg shadow-md max-h-[calc(100vh-120px)] overflow-y-auto shadow-slate-300"
-            >
-              {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 text-m">
-                  {error}
-                </div>
-              )}
+    <div className="min-h-screen w-full bg-gray-100 flex items-start justify-center pt-0 pb-8">
+      <div className="w-full mx-auto p-1 w-[900px]">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="bg-white p-5 rounded-xl shadow-lg max-h-[calc(100vh-40px)] overflow-y-auto border border-gray-200">
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 text-m">
+                {error}
+              </div>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
+            {/* Lisans Bilgileri Başlık */}
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 bg-green-100 rounded-lg px-4 md:px-6 py-3 mb-4 border-b border-gray-200 shadow-sm min-h-0 w-full">
+              <span className="text-lg md:text-xl font-bold text-slate-700 ">
+                LİSANS BİLGİLERİ
+              </span>
+              <span className="hidden md:inline h-8 w-0.5 bg-gray-500 mx-4 rounded-full" />
+              <span className="text-slate-700 text-sm md:text-base font-medium mt-1 md:mt-0">
+                Lisans oluşturmak için gerekli bilgileri giriniz.
+              </span>
+            </div>
+
+            {/* Lisans Bilgileri Form Alanları */}
+            <div className="w-full flex flex-col md:flex-row flex-wrap gap-4 items-stretch md:items-end mt-1">
+              {/* Bayi */}
+              <div className="flex-1 min-w-[150px] max-w-full">
                 <FormField
                   control={form.control}
                   name="bayi_adi"
                   render={({ field }) => (
-                    <FormItem className="space-y-1 ">
-                      <FormLabel className="text-slate-700 font-medium text-m">
-                        Bayi
-                      </FormLabel>
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel className="text-base font-semibold text-gray-700 mb-0.5 tracking-tight">Bayi</FormLabel>
                       <FormControl>
-                        <Popover
-                          open={openBayi}
-                          onOpenChange={(open) => {
-                            setOpenBayi(open);
-                            if (open) {
-                              refetchBayiler();
-                            }
-                          }}
-                        >
+                        <Popover open={openBayi} onOpenChange={(open) => { setOpenBayi(open); if (open) refetchBayiler(); }}>
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
                               role="combobox"
                               aria-expanded={openBayi}
-                              className="w-full justify-between bg-white border-slate-300 hover:bg-slate-50 h-8 text-m font-normal shadow-sm shadow-blue-200"
+                              className="w-full justify-between bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-medium text-gray-800 hover:bg-gray-50 min-h-0 placeholder:font-normal placeholder:text-gray-400"
                             >
-                              {field.value ? field.value : "Bayi Seçiniz..."}
-                              <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                              <span className={field.value ? '' : 'font-normal text-gray-400'}>
+                                {field.value ? field.value : "Bayi Seçiniz..."}
+                              </span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-full p-0"
-                            align="start"
-                            sideOffset={4}
-                          >
+                          <PopoverContent className="w-full p-0 border border-gray-400 rounded shadow-sm" align="start" sideOffset={4}>
                             <Command>
-                              <CommandInput
-                                placeholder="Bayi ara..."
-                                className="h-8"
-                              />
-                              <CommandList className="max-h-[200px]">
+                              <CommandInput placeholder="Bayi ara..." className="h-8" />
+                              <CommandList className="max-h-[160px]">
                                 {isFetching ? (
-                                  <div className="py-3 text-center text-m">
-                                    Yükleniyor...
-                                  </div>
+                                  <div className="py-2 text-center text-sm">Yükleniyor...</div>
                                 ) : bayiler.length === 0 ? (
                                   <CommandEmpty>Bayi bulunamadı.</CommandEmpty>
                                 ) : (
@@ -438,21 +444,10 @@ export default function LisansEkle() {
                                       <CommandItem
                                         key={bayi.id}
                                         value={bayi.id.toString()}
-                                        onSelect={() => {
-                                          setSelectedBayi(bayi);
-                                          field.onChange(bayi.unvan);
-                                          setOpenBayi(false);
-                                        }}
-                                        className="text-m"
+                                        onSelect={() => { setSelectedBayi(bayi); field.onChange(bayi.unvan); setOpenBayi(false); }}
+                                        className="text-sm font-medium text-gray-800"
                                       >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-3 w-3",
-                                            field.value === bayi.unvan
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
+                                        <Check className={cn("mr-2 h-4 w-4", field.value === bayi.unvan ? "opacity-100" : "opacity-0")} />
                                         {bayi.unvan}
                                       </CommandItem>
                                     ))}
@@ -463,80 +458,52 @@ export default function LisansEkle() {
                           </PopoverContent>
                         </Popover>
                       </FormControl>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
-
+              </div>
+              {/* Müşteri Adı */}
+              <div className="flex-1 min-w-[150px] max-w-full">
                 <FormField
                   control={form.control}
                   name="musteri_adi"
                   render={({ field }) => (
-                    <FormItem className="space-y-1 ">
-                      <FormLabel className="text-slate-700 font-medium text-m">
-                        Müşteri Adı
-                      </FormLabel>
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel className="text-base font-semibold text-gray-700 mb-0.5 tracking-tight">Müşteri Adı</FormLabel>
                       <FormControl>
-                        <Popover
-                          open={openMusteri}
-                          onOpenChange={(open) => {
-                            setOpenMusteri(open);
-                            if (open) {
-                              refetchMusteri();
-                            }
-                          }}
-                        >
+                        <Popover open={openMusteri} onOpenChange={(open) => { setOpenMusteri(open); if (open) refetchMusteri(); }}>
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
                               role="combobox"
                               aria-expanded={openMusteri}
-                              className="w-full justify-between bg-white border-slate-300 hover:bg-slate-50 h-8 text-m font-normal shadow-sm shadow-blue-200"
+                              className="w-full justify-between bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-medium text-gray-800 hover:bg-gray-50 min-h-0 placeholder:font-normal placeholder:text-gray-400"
                             >
-                              {field.value ? field.value : "Müşteri Seçiniz..."}
-                              <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                              <span className={field.value ? '' : 'font-normal text-gray-400'}>
+                                {field.value ? field.value : "Müşteri Seçiniz..."}
+                              </span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-full p-0"
-                            align="start"
-                            sideOffset={4}
-                          >
+                          <PopoverContent className="w-full p-0 border border-gray-400 rounded shadow-sm" align="start" sideOffset={4}>
                             <Command>
-                              <CommandInput
-                                placeholder="Müşteri ara..."
-                                className="h-8"
-                              />
-                              <CommandList className="max-h-[200px]">
+                              <CommandInput placeholder="Müşteri ara..." className="h-8" />
+                              <CommandList className="max-h-[160px]">
                                 {isFetchingMusteri ? (
-                                  <div className="py-3 text-center text-m">
-                                    Yükleniyor...
-                                  </div>
+                                  <div className="py-2 text-center text-sm">Yükleniyor...</div>
                                 ) : musteriler.length === 0 ? (
-                                  <CommandEmpty>
-                                    Müşteri bulunamadı.
-                                  </CommandEmpty>
+                                  <CommandEmpty>Müşteri bulunamadı.</CommandEmpty>
                                 ) : (
                                   <CommandGroup>
                                     {musteriler.map((musteri) => (
                                       <CommandItem
                                         key={musteri.id}
                                         value={musteri.id.toString()}
-                                        onSelect={() => {
-                                          setSelectedMusteri(musteri);
-                                          field.onChange(musteri.unvan);
-                                          setOpenMusteri(false);
-                                        }}
-                                        className="text-m"
+                                        onSelect={() => { setSelectedMusteri(musteri); field.onChange(musteri.unvan); setOpenMusteri(false); }}
+                                        className="text-sm font-medium text-gray-800"
                                       >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-3 w-3",
-                                            field.value === musteri.unvan
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
+                                        <Check className={cn("mr-2 h-4 w-4", field.value === musteri.unvan ? "opacity-100" : "opacity-0")} />
                                         {musteri.unvan}
                                       </CommandItem>
                                     ))}
@@ -547,78 +514,52 @@ export default function LisansEkle() {
                           </PopoverContent>
                         </Popover>
                       </FormControl>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
+              </div>
+              {/* Paket */}
+              <div className="flex-1 min-w-[150px] max-w-full">
                 <FormField
                   control={form.control}
                   name="paket_adi"
                   render={({ field }) => (
-                    <FormItem className="space-y-1 ">
-                      <FormLabel className="text-slate-700 font-medium text-m">
-                        Paket
-                      </FormLabel>
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel className="text-base font-semibold text-gray-700 mb-0.5 tracking-tight">Paket</FormLabel>
                       <FormControl>
-                        <Popover
-                          open={openPaket}
-                          onOpenChange={(open) => {
-                            setOpenPaket(open);
-                            if (open) {
-                              refetchPaketler();
-                            }
-                          }}
-                        >
+                        <Popover open={openPaket} onOpenChange={(open) => { setOpenPaket(open); if (open) refetchPaketler(); }}>
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
                               role="combobox"
                               aria-expanded={openPaket}
-                              className="w-full justify-between bg-white border-slate-300 hover:bg-slate-50 h-8 text-m font-normal shadow-sm shadow-blue-200"
+                              className="w-full justify-between bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-medium text-gray-800 hover:bg-gray-50 min-h-0 placeholder:font-normal placeholder:text-gray-400"
                             >
-                              {field.value ? field.value : "Paket Seçiniz..."}
-                              <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                              <span className={field.value ? '' : 'font-normal text-gray-400'}>
+                                {field.value ? field.value : "Paket Seçiniz..."}
+                              </span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-full p-0"
-                            align="start"
-                            sideOffset={4}
-                          >
+                          <PopoverContent className="w-full p-0 border border-gray-400 rounded shadow-sm" align="start" sideOffset={4}>
                             <Command>
-                              <CommandInput
-                                placeholder="Paket ara..."
-                                className="h-8"
-                              />
-                              <CommandList className="max-h-[200px]">
+                              <CommandInput placeholder="Paket ara..." className="h-8" />
+                              <CommandList className="max-h-[160px]">
                                 {isFetchingPaketler ? (
-                                  <div className="py-3 text-center text-m">
-                                    Yükleniyor...
-                                  </div>
+                                  <div className="py-2 text-center text-sm">Yükleniyor...</div>
                                 ) : paketler.length === 0 ? (
                                   <CommandEmpty>Paket bulunamadı.</CommandEmpty>
                                 ) : (
-                                  <CommandGroup>                                    {paketler.map((paket) => (
+                                  <CommandGroup>
+                                    {paketler.map((paket) => (
                                       <CommandItem
                                         key={paket.id}
                                         value={paket.id.toString()}
-                                        onSelect={() => {
-                                          setSelectedPaket(paket);
-                                          field.onChange(paket.paket_adi);
-                                          setOpenPaket(false);
-                                          // Seçilen paket değiştiğinde, paket modüllerini getir
-                                          fetchPaketModules(paket.id);
-                                        }}
-                                        className="text-m"
+                                        onSelect={() => { setSelectedPaket(paket); field.onChange(paket.paket_adi); setOpenPaket(false); fetchPaketModules(paket.id); }}
+                                        className="text-sm font-medium text-gray-800"
                                       >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-3 w-3",
-                                            field.value === paket.paket_adi
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
+                                        <Check className={cn("mr-2 h-4 w-4", field.value === paket.paket_adi ? "opacity-100" : "opacity-0")} />
                                         {paket.paket_adi}
                                       </CommandItem>
                                     ))}
@@ -629,89 +570,146 @@ export default function LisansEkle() {
                           </PopoverContent>
                         </Popover>
                       </FormControl>
-                      <FormMessage className="text-[10px]" />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
-
+              </div>
+              {/* Kullanıcı Sayısı */}
+              <div className="w-full sm:w-28 max-w-full">
                 <FormField
                   control={form.control}
-                  name="items"
-                  render={() => (
-                    <FormItem className="md:col-span-3 mt-4">
-                      <div className="mb-5 bg-gradient-to-r from-indigo-50 to-white p-4 rounded-xl border-l-4 border-indigo-500">
-                        <FormLabel className="text-xl font-semibold text-indigo-700">
-                          Modüller
-                        </FormLabel>
-                        <FormDescription className="text-slate-600 text-sm mt-1">
-                          Paket için kullanılabilir modülleri seçiniz.
-                        </FormDescription>                      </div>                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-                        {(modulPaketDuzenleData || []).map((item) => (
-                          <FormField
-                            key={item.id}
-                            control={form.control}
-                            name="items"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={item.adi}
-                                  className="flex flex-row items-center space-x-2 p-2 rounded-lg hover:bg-indigo-50 transition-all duration-300 border border-transparent hover:border-indigo-200 group"
-                                >                                  <FormControl>
-                                    <Checkbox
-                                      checked={(field.value || []).includes(
-                                        item.modul_adi
-                                      )}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([
-                                              ...(field.value || []),
-                                              item.modul_adi,
-                                            ])
-                                          : field.onChange(
-                                              (field.value || []).filter(
-                                                (value) =>
-                                                  value !== item.modul_adi
-                                              )
-                                            );
-                                      }}
-                                      className="h-7 w-7 rounded-md border-2 border-indigo-300 bg-white shadow-sm ring-offset-2 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-indigo-500 data-[state=checked]:to-blue-500 data-[state=checked]:border-indigo-400 hover:border-indigo-400 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="text-base font-medium cursor-pointer select-none text-gray-700 group-hover:text-indigo-700 transition-colors ml-1">
-                                    {item.modul_adi}
-                                  </FormLabel>
-                                </FormItem>
-                              );
-                            }}
-                          />
-                        ))}{" "}
-                      </div>
-                      <FormMessage className="text-sm text-red-500 mt-2" />
+                  name="kullanici_sayisi"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel className="text-base font-semibold text-gray-700 mb-0.5 tracking-tight">Kullanıcı Sayısı</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="1"
+                           min={1}
+                            max={20}
+                             defaultValue={1}
+                          className="bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-normal text-gray-800 placeholder:font-normal placeholder:text-gray-400 min-h-0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
               </div>
-
-              <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-2 md:flex-row md:items-end mt-5">
-                <Button
-                  type="button"
-                  onClick={() => form.reset()}
-                  className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-3 py-0 pl-4 pr-4 mr-5"
-                >
-                  İptal
-                </Button>
-
-                <Button
-                  type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 text-sm px-3 py-0 pl-4 pr-4"
-                >
-                  Kaydet
-                </Button>
+              {/* Lisans Süresi */}
+              <div className="w-full sm:w-28 max-w-full">
+                <FormField
+                  control={form.control}
+                  name="lisans_suresi"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel className="text-base font-semibold text-gray-700 mb-0.5 tracking-tight">Lisans Süresi</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Gün"
+                           min={0}
+                            max={365}
+                             defaultValue={0}
+                          className="bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-normal text-gray-800 placeholder:font-normal placeholder:text-gray-400 min-h-0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </form>
-          </Form>
-        </div>
+              {/* Demo */}
+              <div className="w-full sm:w-20 flex flex-col justify-end max-w-full">
+                <FormField
+                  control={form.control}
+                  name="is_demo"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col gap-1">
+                      <FormLabel className="text-base font-semibold text-gray-700 mb-0.5 tracking-tight">Demo</FormLabel>
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="h-8 w-12 border border-gray-400 bg-white shadow-sm mt-0 min-h-0"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Modüller Başlık */}
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 bg-blue-400 rounded-lg px-4 md:px-6 py-3 mt-6 mb-4 border-b border-gray-200 shadow-sm min-h-0 w-full">
+              <span className="text-lg md:text-xl font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+                MODÜLLER
+              </span>
+              <span className="hidden md:inline h-8 w-0.5 bg-gray-500 mx-4 rounded-full" />
+              <span className="text-white text-sm md:text-base font-medium mt-1 md:mt-0">
+                Paket için kullanılabilir modülleri seçiniz.
+              </span>
+            </div>
+
+            {/* Modüller Checkbox Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {(modulPaketDuzenleData || []).map((item) => (
+                <FormField
+                  key={item.id}
+                  control={form.control}
+                  name="items"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 pl-3 h-12 rounded bg-white border border-gray-300 shadow-sm min-w-0 w-full cursor-pointer hover:bg-gray-50 transition-colors min-h-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={(field.value || []).includes(item.modul_adi)}
+                          onCheckedChange={(checked) => {
+                            return checked
+                              ? field.onChange([
+                                  ...(field.value || []),
+                                  item.modul_adi,
+                                ])
+                              : field.onChange(
+                                  (field.value || []).filter(
+                                    (value) => value !== item.modul_adi
+                                  )
+                                );
+                          }}
+                          className="h-5 w-5 border-2 border-gray-400 bg-white shadow focus:ring-0 focus:ring-offset-0 hover:border-blue-500 min-h-0"
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-medium cursor-pointer select-none text-gray-800 ml-1 truncate h-12 w-full">
+                        {item.modul_adi}
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+
+            {/* Butonlar */}
+            <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-3 md:flex-row md:items-end mt-5">
+              <Button
+                type="button"
+                onClick={() => form.reset()}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 h-10 text-sm px-4 py-0 rounded-lg shadow font-semibold border border-gray-300 min-h-0"
+              >
+                İptal
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-800 hover:bg-blue-700 text-white h-10 text-sm px-4 py-0 rounded-lg shadow font-semibold border-0 min-h-0"
+              >
+                Kaydet
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
-    </>
+    </div>
   );
 }
