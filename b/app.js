@@ -315,12 +315,108 @@ app.get("/api/lisans", async (req, res) => {
     const result = await connection.query(
       "SELECT * FROM lisans ORDER BY id DESC"
     );
-    res.status(200).json(result.rows);
-  } catch (error) {
+    res.status(200).json(result.rows);  } catch (error) {
     console.error("Lisans alınırken hata oluştu:", error);
     res.status(500).json({ message: "Lisans alınamadı: " + error.message });
   }
 });
+
+// Lisansları filtreleme endpoint'i
+app.get("/api/lisans/filter", async (req, res) => {
+  try {
+    console.log("Gelen lisans filtreleme parametreleri:", req.query);
+
+    // Query parametrelerini al
+    const { 
+      lisans, 
+      musteri, 
+      bayi, 
+      paket, 
+      il, 
+      aktiflik_durumu, 
+      lisans_tipi 
+    } = req.query;    // İl filtresini müşteri tablosu üzerinden yapmak için JOIN sorgusu kullanacağız
+    let query;
+    const queryParams = [];
+    let paramIndex = 1;
+
+    // İl filtresi varsa JOIN ile sorgu yapılandırma
+    if (il) {
+      query = `
+        SELECT l.* 
+        FROM lisans l
+        LEFT JOIN musteri m ON l.musteri_adi = m.unvan
+        WHERE 1=1
+      `;
+
+      query += ` AND m.il ILIKE $${paramIndex}`;
+      queryParams.push(`%${il}%`);
+      paramIndex++;
+    } else {
+      // İl filtresi yoksa basit sorgu
+      query = "SELECT * FROM lisans WHERE 1=1";
+    }
+
+    // Diğer filtreleri ekleyelim
+    if (lisans) {
+      query += ` AND lisans_kodu ILIKE $${paramIndex}`;
+      queryParams.push(`%${lisans}%`);
+      paramIndex++;
+    }
+
+    if (musteri) {
+      query += ` AND musteri_adi ILIKE $${paramIndex}`;
+      queryParams.push(`%${musteri}%`);
+      paramIndex++;
+    }
+
+    if (bayi) {
+      query += ` AND bayi_adi ILIKE $${paramIndex}`;
+      queryParams.push(`%${bayi}%`);
+      paramIndex++;
+    }
+    
+    if (paket) {
+      query += ` AND paket_adi ILIKE $${paramIndex}`;
+      queryParams.push(`%${paket}%`);
+      paramIndex++;
+    }
+    
+    if (aktiflik_durumu) {
+      query += ` AND aktif = $${paramIndex}`;
+      queryParams.push(aktiflik_durumu === 'aktif');
+      paramIndex++;
+    }
+
+    if (lisans_tipi) {
+      query += ` AND is_demo = $${paramIndex}`;
+      queryParams.push(lisans_tipi === 'demo');
+      paramIndex++;
+    }
+
+    // Sonuçları sırala
+    query += " ORDER BY id DESC";
+
+    console.log("Oluşturulan lisans sorgusu:", query);
+    console.log("Sorgu parametreleri:", queryParams);
+
+    // Sorguyu çalıştır
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(query, queryParams);
+
+    console.log(`Filtreleme sonucunda ${result.rows.length} lisans kaydı bulundu`);
+
+    // Sonuçları döndür
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Lisans filtreleme işlemi sırasında hata oluştu:", error);
+    res.status(500).json({
+      message: "Lisans filtreleme işlemi sırasında bir hata oluştu",
+      error: error.message,
+    });
+  }
+});
+
 // Bayi ünvanları listeleme api
 app.get("/api/bayiler/unvan", async (req, res) => {
   try {
@@ -877,6 +973,64 @@ app.get("/api/db-status", async (req, res) => {
     res.status(500).json({
       status: "error",
       message: error.message,
+    });
+  }
+});
+
+// Lisans aktif durumunu değiştiren endpoint
+app.put("/api/lisanslar/:id/toggle-aktif", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { aktif } = req.body;
+
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      'UPDATE lisans SET "aktif" = $1 WHERE id = $2 RETURNING *',
+      [aktif, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Lisans bulunamadı" });
+    }
+
+    res.status(200).json({
+      message: "Lisans aktif durumu başarıyla güncellendi",
+      updatedLisans: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Lisans aktif durumu güncellenirken hata oluştu:", error);
+    res.status(500).json({ 
+      message: "Lisans aktif durumu güncellenemedi",
+      error: error.message 
+    });
+  }
+});
+
+// Lisans kilit durumunu değiştiren endpoint
+app.put("/api/lisanslar/:id/toggle-kilit", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { kilit } = req.body;
+
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      'UPDATE lisans SET "kilit" = $1 WHERE id = $2 RETURNING *',
+      [kilit, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Lisans bulunamadı" });
+    }
+
+    res.status(200).json({
+      message: "Lisans kilit durumu başarıyla güncellendi",
+      updatedLisans: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Lisans kilit durumu güncellenirken hata oluştu:", error);
+    res.status(500).json({ 
+      message: "Lisans kilit durumu güncellenemedi",
+      error: error.message 
     });
   }
 });
