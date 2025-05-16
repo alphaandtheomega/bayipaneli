@@ -308,8 +308,19 @@ app.post("/api/lisanslar", async (req, res) => {
     res.status(500).json({ message: "Lisans kaydedilemedi: " + error.message });
   }
 });
-
-
+// lisans getirme api
+app.get("/api/lisans", async (req, res) => {
+  try {
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      "SELECT * FROM lisans ORDER BY id DESC"
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Lisans alınırken hata oluştu:", error);
+    res.status(500).json({ message: "Lisans alınamadı: " + error.message });
+  }
+});
 // Bayi ünvanları listeleme api
 app.get("/api/bayiler/unvan", async (req, res) => {
   try {

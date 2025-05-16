@@ -63,7 +63,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
       // Sadece filtre yoksa veriyi güncelle
       if (!Object.values(filterParams).some(val => val && val.trim !== '')) {
         // Tüm bayiler/filtre querylerini bul ve güncelle
-        const queriesInCache = queryClient.getQueriesData({ queryKey: ['filteredBayiler'] });
+        const queriesInCache = queryClient.getQueriesData({ queryKey: ['filteredLisanslar'] });
         
         // Her bir query için cache'i güncelle
         queriesInCache.forEach(([queryKey]) => {
@@ -73,7 +73,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
     }
   }, [data, queryClient]);// React Query ile filtrelenmiş veri çekme
   const { data: filteredData, isLoading, isRefetching } = useQuery({
-    queryKey: ['filteredBayiler', filterParams],  // data'yı çıkardık, gereksiz bağımlılık oluşturuyordu
+    queryKey: ['filteredLisanslar', filterParams],  // data'yı çıkardık, gereksiz bağımlılık oluşturuyordu
     queryFn: async () => {
       try {
         // Filtreleme parametreleri varsa onları kullan, yoksa tüm verileri getir
@@ -91,7 +91,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
           
           console.log("Filtreleme isteği yapılıyor");
           // Filtreleme API'sine istek gönder
-          const response = await axios.get(`http://localhost:3001/api/bayiler/filter?${queryParams.toString()}`);
+          const response = await axios.get(`http://localhost:3001/api/lisans/filter?${queryParams.toString()}`);
           
           // Kullanıcıya sonucu bildir
           if (response.data.length === 0) {
@@ -111,7 +111,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
           
           // Bu duruma pek düşülmemeli - veri yoksa ve filtre yoksa
           console.log("API'dan tüm verileri getiriyorum - Bu normalde olmamalı");
-          const response = await axios.get("http://localhost:3001/api/bayiler");
+          const response = await axios.get("http://localhost:3001/api/lisans");
           return response.data;
         }
       } catch (error) {
@@ -152,7 +152,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
       setFilterParams({});
       // Mevcut verileri direkt kullan, API isteği yapma
       if (data) {
-        queryClient.setQueryData(['filteredBayiler', {}], data);
+        queryClient.setQueryData(['filteredLisanslar', {}], data);
       }
     }
   }
@@ -162,22 +162,30 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
     console.log("Yenileme butonu tıklandı");
     // Form'u sıfırla
     form.reset({
-      bayi_kodu: "",
-      unvan: "",
-      firma_sahibi: "",
+      bayi_adi: "",
+      musteri_adi: "",
+      paket_adi: "",
+      kullanici_sayisi: "",
+      lisans_suresi: "",
+      is_demo: "",
+      lisans_kodu: "",
+      yetkili: "",
+      aktif: "",
+      kilit: "",
+      items: [],
     });
     
     // Filtreleri temizle
     setFilterParams({});
     
     // Önbelleği temizle ve veriyi ana kaynaktan yenile
-    queryClient.removeQueries(['filteredBayiler']);
+    queryClient.removeQueries(['filteredLisanslar']);
     
     // Ana listeyi yenile (Bu tek API isteği yapacak)
     refetch().then((result) => {
       if (result.data) {
         // Yeni veri geldiğinde filtresiz sorguya kaydet
-        queryClient.setQueryData(['filteredBayiler', {}], result.data);
+        queryClient.setQueryData(['filteredLisanslar', {}], result.data);
         
         toast.success("Veriler güncellendi", {
           description: `${result.data.length} kayıt başarıyla yenilendi.`,
@@ -411,3 +419,5 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
     </div>
   )
 }
+
+export default LisansListesiDataTable;

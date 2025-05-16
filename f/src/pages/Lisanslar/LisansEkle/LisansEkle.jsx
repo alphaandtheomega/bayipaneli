@@ -96,6 +96,7 @@ export default function LisansEkle() {
   const [selectedPaketId, setSelectedPaketId] = useState(null);
   const [showLisansDialog, setShowLisansDialog] = useState(false);
   const [lastLisansKodu, setLastLisansKodu] = useState("");
+  const [bayiSearch, setBayiSearch] = useState("");
   const queryClient = useQueryClient();
   // Form tanımlaması
   const form = useForm({
@@ -424,6 +425,13 @@ export default function LisansEkle() {
       },
     });
   }
+  // Bayi arama kutusu için filtreleme
+  const filteredBayiler =
+    bayiSearch.trim() === ""
+      ? bayiler
+      : bayiler.filter((bayi) =>
+          bayi.unvan && bayi.unvan.toLowerCase().includes(bayiSearch.toLowerCase())
+        );
 
   return (
     <div className="min-h-screen w-full bg-gray-100 flex items-start justify-center pt-0 pb-8">
@@ -492,22 +500,24 @@ export default function LisansEkle() {
                             align="start"
                             sideOffset={4}
                           >
-                            <Command>
-                              <CommandInput
+                            <Command>                              <CommandInput
                                 placeholder="Bayi ara..."
                                 className="h-8"
+                                value={bayiSearch}
+                                onValueChange={(value) => {
+                                  setBayiSearch(value);
+                                }}
                               />
                               <CommandList className="max-h-[160px]">
                                 {isFetching ? (
                                   <div className="py-2 text-center text-sm">
                                     Yükleniyor...
                                   </div>
-                                ) : bayiler.length === 0 ? (
+                                ) : filteredBayiler.length === 0 ? (
                                   <CommandEmpty>Bayi bulunamadı.</CommandEmpty>
                                 ) : (
                                   <CommandGroup>
-                                    {bayiler.map((bayi) => (
-                                      <CommandItem
+                                    {filteredBayiler.map((bayi) => (                                      <CommandItem
                                         key={bayi.id}
                                         value={bayi.id.toString()}
                                         onSelect={() => {
@@ -520,7 +530,7 @@ export default function LisansEkle() {
                                         <Check
                                           className={cn(
                                             "mr-2 h-4 w-4",
-                                            field.value === bayi.unvan
+                                            filteredBayiler.find((framework) => framework.unvan === field.value)?.unvan === bayi.unvan
                                               ? "opacity-100"
                                               : "opacity-0"
                                           )}

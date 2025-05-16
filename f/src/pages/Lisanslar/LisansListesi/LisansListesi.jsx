@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { DataTable } from "./LisansListesiDataTable"
+import DataTable from "./LisansListesiDataTable"
 import { columns } from "./LisansListesiColumns"
 import axios from "axios"
 import { toast } from "sonner"
