@@ -289,6 +289,27 @@ app.post("/api/paketler", async (req, res) => {
   }
 });
 
+// lisans ekleme api
+app.post("/api/lisanslar", async (req, res) => {
+  const { bayi_adi, musteri_adi, paket_adi, kullanici_sayisi, lisans_suresi, is_demo, items, lisans_kodu, yetkili,aktif, kilit  } = req.body;
+
+  try {
+    const connection = req.db || (await getConnection());
+    // Array'i JSON string'e dönüştür
+    const itemsJson = JSON.stringify(items);
+    
+    const newTest = await connection.query(
+      'INSERT INTO lisans ("bayi_adi", "musteri_adi", "paket_adi", "kullanici_sayisi", "lisans_suresi","is_demo", "items", "lisans_kodu", "yetkili", "aktif", "kilit" ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
+      [bayi_adi, musteri_adi, paket_adi, kullanici_sayisi, lisans_suresi, is_demo, itemsJson, lisans_kodu, yetkili, aktif, kilit]
+    );
+    res.status(201).json(newTest.rows[0]);
+  } catch (error) {
+    console.error("Lisans kaydedilirken hata oluştu:", error);
+    res.status(500).json({ message: "Lisans kaydedilemedi: " + error.message });
+  }
+});
+
+
 // Bayi ünvanları listeleme api
 app.get("/api/bayiler/unvan", async (req, res) => {
   try {
