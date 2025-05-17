@@ -536,6 +536,21 @@ app.get("/api/bayiler/:id", async (req, res) => {
     res.status(500).json({ message: "Bayi alınamadı: " + error.message });
   }
 });
+
+//lisans idye göre getirme api
+app.get("/api/lisans/:id", async (req, res) => {
+  try {
+    const connection = req.db || (await getConnection());
+    const result = await connection.query(
+      "SELECT * FROM lisans WHERE id = $1",
+      [req.params.id]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("ilgili idye sahip lisans yok!:", error);
+    res.status(500).json({ message: "lisans alınamadı: " + error.message });
+  }
+});
 //Paketleri idye göre getirme api
 app.get("/api/paketler/:id", async (req, res) => {
   try {
@@ -700,6 +715,62 @@ app.put("/api/musteriler/:id", async (req, res) => {
       .json({ message: "Müşteri güncellenemedi: " + error.message });
   }
 });
+
+// Lisans güncelleme API
+app.put("/api/lisansduzenle/:id", async (req, res) => {
+  try {
+    const {
+      bayi_adi,
+      musteri_adi,
+      paket_adi,
+      kullanici_sayisi,
+      lisans_suresi,
+      is_demo,
+      items,
+      lisans_kodu,
+      yetkili,
+      aktif,
+      kilit,
+    } = req.body;
+
+    const connection = req.db || (await getConnection());
+    const itemsJson = JSON.stringify(items);
+    const result = await connection.query(
+      'UPDATE lisans SET "bayi_adi" = $1, "musteri_adi" = $2, "paket_adi" = $3, "kullanici_sayisi" = $4, "lisans_suresi" = $5, "is_demo" = $6, "items" = $7, "lisans_kodu" = $8, "yetkili" = $9, "aktif" = $10, "kilit" = $11 WHERE id = $12 RETURNING *',
+      [
+        bayi_adi,
+        musteri_adi,
+        paket_adi,
+        kullanici_sayisi,
+        lisans_suresi,
+        is_demo,
+        itemsJson,
+        lisans_kodu,
+        yetkili,
+        aktif,
+        kilit,
+        req.params.id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Güncellenecek lisans bulunamadı" });
+    }
+
+    res.status(200).json({
+      message: "Lisans başarıyla güncellendi",
+      updatedCustomer: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Lisans güncellenirken hata oluştu:", error);
+    res
+      .status(500)
+      .json({ message: "Lisans güncellenemedi: " + error.message });
+  }
+});
+
 // Paket duzenle güncelleme API
 app.put("/api/paketler/:id", async (req, res) => {
   try {

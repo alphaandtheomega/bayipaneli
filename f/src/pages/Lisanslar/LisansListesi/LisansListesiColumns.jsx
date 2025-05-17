@@ -5,9 +5,13 @@ import { ArrowUpDown } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+  
 export const columns = [
+  
   {
     accessorKey: "lisans_kodu",
     header: ({ column }) => (
@@ -96,12 +100,47 @@ export const columns = [
     ),
     size: 90,
     minSize: 90,
-    maxSize: 120,
+    maxSize: 180,
     cell: ({ row }) => {
       const value = row.getValue("paket_adi");
       return (
         <div
-          className="truncate max-w-[120px] px-3 py-2 border-r border-gray-200"
+          className="truncate max-w-[180px] px-3 py-2 border-r border-gray-200"
+          title={value}
+        >
+          {value}
+        </div>
+      );
+    },
+  },
+   {
+    accessorKey: "ekstramoduller",
+    header: () => (
+      <div className="text-center w-full py-2 my-1.5">Ekstra Modüller</div>
+    ),
+    size: 90,
+    minSize: 90,
+    maxSize: 180,
+    cell: ({ row }) => {
+      // Tüm modüller (ör: row.original.items) ve paket modülleri (ör: row.original.paket_modul veya row.original.paket_modulleri) alınır
+      const allModules = row.original.items || [];
+      // Paket modülleri string olarak geliyorsa parse et
+      let paketModules = row.original.paket_modul || row.original.paket_modulleri || [];
+      if (typeof paketModules === "string") {
+        try {
+          paketModules = JSON.parse(paketModules);
+        } catch {
+          paketModules = [];
+        }
+      }
+      // Fazla modülleri bul
+      const extraModules = Array.isArray(allModules) && Array.isArray(paketModules)
+        ? allModules.filter((modul) => !paketModules.includes(modul))
+        : [];
+      const value = extraModules.join(", ");
+      return (
+        <div
+          className="truncate max-w-[180px] px-3 py-2 border-r border-gray-200"
           title={value}
         >
           {value}
@@ -160,6 +199,7 @@ export const columns = [
       );
     },
   },
+  
   {
     // Use a derived accessor that doesn't conflict with original data fields
     accessorFn: (row) => {
@@ -275,7 +315,8 @@ export const columns = [
           setIsChecked(isChecked);
           console.error("Kilit durumu değiştirilemedi:", error);
         }
-      });
+      }
+    );
       
       const handleToggleKilit = async () => {
         try {
@@ -303,6 +344,33 @@ export const columns = [
                 : "data-[state=unchecked]:bg-slate-300 data-[state=unchecked]:text-red-50"}
             />
           </div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "duzenle",
+    header: () => (
+      <div className="text-center w-full py-2 my-1.5">Düzenle</div>
+    ),
+    size: 120,
+    minSize: 120,
+    maxSize: 140,
+    cell: ({ row }) => {
+      const navigate = useNavigate();
+      // const value = row.getValue("lisans_suresi");
+      return (
+        <div className="text-center w-full px-3 py-2 border-r border-gray-200">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+                        navigate(`/lisansduzenle/${row.original.id}`);
+                        console.log("Row clicked:", row.original);
+                      }}
+          >
+            Düzenle
+          </Button>
         </div>
       );
     },
