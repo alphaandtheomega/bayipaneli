@@ -399,6 +399,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
       musteri_arama: "",
       bayi_arama: "",
       paket_arama: "",
+      yetkili_arama: "",
       il: "",
       aktiflik_durumu_arama: "",
       lisans_tipi_arama: "",
@@ -451,9 +452,9 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
             if (value && value !== "") {
               // Arama alanlarını API parametrelerine çeviriyoruz
               let apiParam;
-              
+
               // Her bir arama alanı için doğru API parametresi adını belirliyoruz
-              switch(key) {
+              switch (key) {
                 case "lisans_arama":
                   apiParam = "lisans";
                   break;
@@ -462,11 +463,15 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                   break;
                 case "bayi_arama":
                   apiParam = "bayi";
-                  break;                case "paket_arama":
+                  break;
+                case "paket_arama":
                   apiParam = "paket";
-                  break;                // İl filtrelemesi için müşteri tablosunda il alanı kullanılır
+                  break; // İl filtrelemesi için müşteri tablosunda il alanı kullanılır
                 case "il":
                   apiParam = "il";
+                  break;
+                  case "yetkili_arama":
+                  apiParam = "yetkili";
                   break;
                 case "aktiflik_durumu_arama":
                   apiParam = "aktiflik_durumu";
@@ -477,21 +482,27 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                 default:
                   apiParam = key;
               }
-              
+
               console.log(`API parametresi: ${apiParam} = ${value}`);
               queryParams.append(apiParam, value);
-            }          });
-            setError(null); // Her yeni istek başlangıcında error durumunu sıfırla
+            }
+          });
+          setError(null); // Her yeni istek başlangıcında error durumunu sıfırla
           console.log("Filtreleme isteği yapılıyor:", queryParams.toString());
           const apiUrl = `http://localhost:3001/api/lisans/filter?${queryParams.toString()}`;
           console.log(`Filtreleme URL: ${apiUrl}`);
-          
+
           try {
             // Önbelleği devre dışı bırakmak için zaman damgası ekleyebiliriz
             const timestamp = new Date().getTime();
-            const cacheBusterUrl = `${apiUrl}${apiUrl.includes('?') ? '&' : '?'}_t=${timestamp}`;
+            const cacheBusterUrl = `${apiUrl}${
+              apiUrl.includes("?") ? "&" : "?"
+            }_t=${timestamp}`;
             const response = await axios.get(cacheBusterUrl);
-            console.log("API yanıtı alındı, kayıt sayısı:", response.data?.length);
+            console.log(
+              "API yanıtı alındı, kayıt sayısı:",
+              response.data?.length
+            );
             console.log("İlk kayıtlar:", response.data?.slice(0, 2));
             // Kullanıcıya sonucu bildir
             if (response.data.length === 0) {
@@ -506,12 +517,18 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
             return response.data;
           } catch (error) {
             console.error("Filtreleme sırasında hata oluştu:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Bilinmeyen bir hata oluştu";
+            const errorMessage =
+              error.response?.data?.message ||
+              error.message ||
+              "Bilinmeyen bir hata oluştu";
             // İl filtrelemesi ile ilgili özel hata mesajı
             if (queryParams.has("il") && error.response?.status === 500) {
-              setError("İl filtresi kullanılırken bir hata oluştu. Bu filtreleme müşteri veritabanı ile JOIN işlemi gerçekleştiriyor.");
+              setError(
+                "İl filtresi kullanılırken bir hata oluştu. Bu filtreleme müşteri veritabanı ile JOIN işlemi gerçekleştiriyor."
+              );
               toast.error("İl filtreleme hatası", {
-                description: "İl filtrelemesi sırasında bir sorun oluştu. Lütfen tekrar deneyin.",
+                description:
+                  "İl filtrelemesi sırasında bir sorun oluştu. Lütfen tekrar deneyin.",
               });
             } else {
               setError(`Filtreleme hatası: ${errorMessage}`);
@@ -539,32 +556,34 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
         }
       } catch (error) {
         console.error("Veri çekme hatası:", error);
-        
+
         // Hata mesajını daha açıklayıcı yap
         let errorMessage = "Veriler çekilirken bir hata oluştu.";
-        
+
         if (error.response) {
           // Sunucudan gelen hata yanıtı
           if (error.response.status === 404) {
-            errorMessage = "API endpoint bulunamadı. Sunucunun çalıştığından ve bu endpoint'in tanımlı olduğundan emin olun.";
+            errorMessage =
+              "API endpoint bulunamadı. Sunucunun çalıştığından ve bu endpoint'in tanımlı olduğundan emin olun.";
             console.error("API endpoint bulunamadı:", error.config.url);
           } else {
             errorMessage = `Sunucu hatası: ${error.response.status} - ${error.response.statusText}`;
           }
         } else if (error.request) {
           // İstek yapıldı ama yanıt alınamadı
-          errorMessage = "Sunucuya bağlanılamadı. Sunucunun çalıştığından emin olun.";
+          errorMessage =
+            "Sunucuya bağlanılamadı. Sunucunun çalıştığından emin olun.";
         }
-        
+
         setError(errorMessage);
-        
+
         toast.error("Veri çekme hatası", {
           description: error.response?.data?.message || errorMessage,
         });
-        
+
         // Opsiyonel olarak, hata sonrası filtreleme parametrelerini temizleyebilirsiniz
         // setFilterParams({});
-        
+
         throw error;
       }
     },
@@ -574,7 +593,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
     refetchOnReconnect: false,
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
-  }); 
+  });
   // Form gönderildiğinde çalışacak fonksiyon
   function onSubmit(values) {
     console.log("Form Verileri:", values);
@@ -587,10 +606,10 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
     if (hasFilters) {
       // Filtreleme parametreleri varsa, bunlarla filtreleme yap
       console.log("Filtre parametreleri var, filtreleme sorgusu yapılacak");
-      
+
       // Boş olmayan değerleri içeren bir nesne oluştur - API'ye gönderilecek formatta
       const filteredValues = {};
-      
+
       // Her bir form alanı için API'ye gönderilecek parametreleri hazırla
       Object.entries(values).forEach(([key, value]) => {
         // Null, undefined veya boş string kontrolü
@@ -599,19 +618,19 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
           filteredValues[key] = value;
         }
       });
-      
+
       console.log("Filtrelenecek değerler:", filteredValues);
-      
+
       // FilterParams state'ini güncelle
       setFilterParams(filteredValues);
-      
+
       // Açıkça sorguyu yeniden çalıştır (önbellekten kaçınmak için)
       setTimeout(() => {
         refetchFiltered().then(() => {
           console.log("Filtreleme sorgusu yeniden çalıştırıldı");
         });
       }, 100);
-      
+
       // Arama yapıldığını kullanıcıya bildir
       toast.info("Arama yapılıyor", {
         description: "Arama kriterlerine göre sonuçlar getiriliyor...",
@@ -620,7 +639,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
       // Filtre yoksa, filterParams'ı sıfırla ve mevcut verileri göster
       console.log("Filtre parametreleri yok, tüm verileri göster");
       setFilterParams({});
-      
+
       // Mevcut verileri direkt kullan
       if (data) {
         // Boş filtreyle olan sorgu için veriyi güncelle
@@ -632,7 +651,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
 
   // Herhangi bir işlem yapıldığında verileri yenilemek için kullanılabilecek fonksiyon
   const refreshData = () => {
-    console.log("Yenileme butonu tıklandı");    // Form'u sıfırla
+    console.log("Yenileme butonu tıklandı"); // Form'u sıfırla
     form.reset({
       lisans_arama: "",
       musteri_arama: "",
@@ -803,6 +822,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
+                      {...field}
                     >
                       <SelectTrigger className="bg-white   h-8 text-m shadow-sm shadow-blue-200">
                         <SelectValue placeholder="Paket seçin veya arayın" />
@@ -816,7 +836,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                           paketler.map((paket) => (
                             <SelectItem
                               key={paket.id}
-                              value={paket.id.toString()}
+                              value={paket.paket_adi.toString()}
                             >
                               {paket.paket_adi}
                             </SelectItem>
@@ -832,7 +852,40 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                   <FormMessage className="text-[10px]" />
                 </FormItem>
               )}
-            />              <FormField
+            />
+
+            <FormField
+              control={form.control}
+              name="yetkili_arama"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-slate-700 font-medium text-m">
+                    Yetkili
+                  </FormLabel>{" "}
+                  <FormControl>
+                    <Select
+                      className="w-[180px] max-h-60 overflow-auto"
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                      {...field}
+                    >
+                      <SelectTrigger className="bg-white border-slate-300 focus:border-blue-500 h-8 text-m shadow-sm shadow-blue-200">
+                        <SelectValue placeholder="Yetkili seçin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ömür">Ömür</SelectItem>
+                        <SelectItem value="volkan">Volkan</SelectItem>
+                        <SelectItem value="hazar">Hazar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-[10px]" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
               control={form.control}
               name="il"
               render={({ field }) => (
@@ -848,9 +901,11 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                           role="combobox"
                           aria-expanded={openIller}
                           className="w-full justify-between bg-white border-slate-300 h-8 text-m shadow-sm shadow-blue-200"
+                          {...field}
                         >
                           {field.value
-                            ? iller.find((il) => il.value === field.value)?.label
+                            ? iller.find((il) => il.value === field.value)
+                                ?.label
                             : "İl seçin veya arayın"}
                           <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
                         </Button>
@@ -872,7 +927,9 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    field.value === il.value ? "opacity-100" : "opacity-0"
+                                    field.value === il.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
                                   )}
                                 />
                                 {il.label}
@@ -902,6 +959,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
+                      {...field}
                     >
                       <SelectTrigger className="bg-white border-slate-300 focus:border-blue-500 h-8 text-m shadow-sm shadow-blue-200">
                         <SelectValue placeholder="Aktiflik durumu seçin" />
@@ -930,6 +988,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
+                      {...field}
                     >
                       <SelectTrigger className="bg-white border-slate-300 focus:border-blue-500 h-8 text-m shadow-sm shadow-blue-200">
                         <SelectValue placeholder="Lisans tipi seçin" />
@@ -945,14 +1004,18 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
               )}
             />
 
-            <div className="flex items-end gap-4">              <Button
+            <div className="flex items-end gap-4">
+              {" "}
+              <Button
                 type="submit"
                 className="bg-indigo-600 hover:bg-indigo-700 text-white h-8 text-sm px-3 py-0 pl-4 pr-4"
               >
                 ARA
               </Button>
               <Button
-                type="button"                onClick={() => {                  // Form'u sıfırla
+                type="button"
+                onClick={() => {
+                  // Form'u sıfırla
                   form.reset({
                     lisans_arama: "",
                     musteri_arama: "",
@@ -961,23 +1024,26 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                     il: "", // İl alanı devre dışı olsa da formu sıfla
                     aktiflik_durumu_arama: "",
                     lisans_tipi_arama: "",
+                    yetkili_arama: "",
                   });
-                  
+
                   // Filtreleri temizle
                   setFilterParams({});
-                  
+
                   // Filtreleme sıfırlandı bilgisi
                   toast.info("Filtreler temizlendi", {
-                    description: "Tüm arama kriterleri temizlendi."
+                    description: "Tüm arama kriterleri temizlendi.",
                   });
-                  
+
                   // Tablo verilerini yenile
                   if (data) {
                     // Bu geçerli sorguya veriyi kaydeder
                     queryClient.setQueryData(["filteredLisanslar", {}], data);
-                    console.log("Tablo verileri sıfırlandı, tüm kayıtlar gösteriliyor");
+                    console.log(
+                      "Tablo verileri sıfırlandı, tüm kayıtlar gösteriliyor"
+                    );
                   }
-                  
+
                   // Eğer veri yoksa, ana kaynaktan yenileyebiliriz
                   if (!data) {
                     refreshData();
@@ -999,14 +1065,16 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
           onChange={(e) => setFiltering(e.target.value)}
           className="max-w-sm h-8"
         />
-       
-      </div>      <div className="flex-1 min-h-0">
+      </div>{" "}
+      <div className="flex-1 min-h-0">
         <div className="h-full rounded-md border overflow-auto">
           {isLoading || isRefetching || isFiltering ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-3"></div>
-                <p className="text-indigo-600 font-medium">Veriler yükleniyor...</p>
+                <p className="text-indigo-600 font-medium">
+                  Veriler yükleniyor...
+                </p>
               </div>
             </div>
           ) : (
@@ -1069,7 +1137,9 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                       className="h-24 text-center"
                     >
                       {Object.keys(filterParams).length > 0 ? (
-                        <span className="text-amber-600">Arama kriterlerine uygun kayıt bulunamadı.</span>
+                        <span className="text-amber-600">
+                          Arama kriterlerine uygun kayıt bulunamadı.
+                        </span>
                       ) : (
                         <span>Kayıt bulunamadı.</span>
                       )}

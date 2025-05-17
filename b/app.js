@@ -126,13 +126,13 @@ app.post("/api/moduller", async (req, res) => {
 });
 // test ekleme api
 app.post("/api/test", async (req, res) => {
-  const { items, paket_adi  } = req.body;
+  const { items, paket_adi } = req.body;
 
   try {
     const connection = req.db || (await getConnection());
     // Array'i JSON string'e dönüştür
     const itemsJson = JSON.stringify(items);
-    
+
     const newTest = await connection.query(
       'INSERT INTO test ("items", "paket_adi") VALUES ($1, $2) RETURNING *',
       [itemsJson, paket_adi]
@@ -171,7 +171,9 @@ app.delete("/api/moduller/:id", async (req, res) => {
 app.get("/api/moduller", async (req, res) => {
   try {
     const connection = req.db || (await getConnection());
-    const result = await connection.query("SELECT * FROM moduller ORDER BY id ASC");
+    const result = await connection.query(
+      "SELECT * FROM moduller ORDER BY id ASC"
+    );
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Modül bilgileri alınırken hata oluştu:", error);
@@ -271,13 +273,13 @@ app.post("/api/bayiler", async (req, res) => {
 });
 // paket ekleme api
 app.post("/api/paketler", async (req, res) => {
-  const { items, paket_kodu, paket_adi, paket_aciklama  } = req.body;
+  const { items, paket_kodu, paket_adi, paket_aciklama } = req.body;
 
   try {
     const connection = req.db || (await getConnection());
     // Array'i JSON string'e dönüştür
     const itemsJson = JSON.stringify(items);
-    
+
     const newTest = await connection.query(
       'INSERT INTO paketler ("paket_modul", "paket_kodu", "paket_adi", "paket_aciklama") VALUES ($1, $2, $3, $4) RETURNING *',
       [itemsJson, paket_kodu, paket_adi, paket_aciklama]
@@ -291,16 +293,40 @@ app.post("/api/paketler", async (req, res) => {
 
 // lisans ekleme api
 app.post("/api/lisanslar", async (req, res) => {
-  const { bayi_adi, musteri_adi, paket_adi, kullanici_sayisi, lisans_suresi, is_demo, items, lisans_kodu, yetkili,aktif, kilit  } = req.body;
+  const {
+    bayi_adi,
+    musteri_adi,
+    paket_adi,
+    kullanici_sayisi,
+    lisans_suresi,
+    is_demo,
+    items,
+    lisans_kodu,
+    yetkili,
+    aktif,
+    kilit,
+  } = req.body;
 
   try {
     const connection = req.db || (await getConnection());
     // Array'i JSON string'e dönüştür
     const itemsJson = JSON.stringify(items);
-    
+
     const newTest = await connection.query(
       'INSERT INTO lisans ("bayi_adi", "musteri_adi", "paket_adi", "kullanici_sayisi", "lisans_suresi","is_demo", "items", "lisans_kodu", "yetkili", "aktif", "kilit" ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-      [bayi_adi, musteri_adi, paket_adi, kullanici_sayisi, lisans_suresi, is_demo, itemsJson, lisans_kodu, yetkili, aktif, kilit]
+      [
+        bayi_adi,
+        musteri_adi,
+        paket_adi,
+        kullanici_sayisi,
+        lisans_suresi,
+        is_demo,
+        itemsJson,
+        lisans_kodu,
+        yetkili,
+        aktif,
+        kilit,
+      ]
     );
     res.status(201).json(newTest.rows[0]);
   } catch (error) {
@@ -315,7 +341,8 @@ app.get("/api/lisans", async (req, res) => {
     const result = await connection.query(
       "SELECT * FROM lisans ORDER BY id DESC"
     );
-    res.status(200).json(result.rows);  } catch (error) {
+    res.status(200).json(result.rows);
+  } catch (error) {
     console.error("Lisans alınırken hata oluştu:", error);
     res.status(500).json({ message: "Lisans alınamadı: " + error.message });
   }
@@ -327,15 +354,8 @@ app.get("/api/lisans/filter", async (req, res) => {
     console.log("Gelen lisans filtreleme parametreleri:", req.query);
 
     // Query parametrelerini al
-    const { 
-      lisans, 
-      musteri, 
-      bayi, 
-      paket, 
-      il, 
-      aktiflik_durumu, 
-      lisans_tipi 
-    } = req.query;    // İl filtresini müşteri tablosu üzerinden yapmak için JOIN sorgusu kullanacağız
+    const { lisans, musteri, bayi, paket, il, aktiflik_durumu, lisans_tipi, yetkili } =
+      req.query; // İl filtresini müşteri tablosu üzerinden yapmak için JOIN sorgusu kullanacağız
     let query;
     const queryParams = [];
     let paramIndex = 1;
@@ -375,22 +395,28 @@ app.get("/api/lisans/filter", async (req, res) => {
       queryParams.push(`%${bayi}%`);
       paramIndex++;
     }
-    
+
     if (paket) {
       query += ` AND paket_adi ILIKE $${paramIndex}`;
       queryParams.push(`%${paket}%`);
       paramIndex++;
     }
-    
+
+    if (yetkili) {
+      query += ` AND yetkili ILIKE $${paramIndex}`;
+      queryParams.push(`%${yetkili}%`);
+      paramIndex++;
+    }
+
     if (aktiflik_durumu) {
       query += ` AND aktif = $${paramIndex}`;
-      queryParams.push(aktiflik_durumu === 'aktif');
+      queryParams.push(aktiflik_durumu === "true");
       paramIndex++;
     }
 
     if (lisans_tipi) {
       query += ` AND is_demo = $${paramIndex}`;
-      queryParams.push(lisans_tipi === 'demo');
+      queryParams.push(lisans_tipi === "demo");
       paramIndex++;
     }
 
@@ -404,8 +430,13 @@ app.get("/api/lisans/filter", async (req, res) => {
     const connection = req.db || (await getConnection());
     const result = await connection.query(query, queryParams);
 
-    console.log(`Filtreleme sonucunda ${result.rows.length} lisans kaydı bulundu`);
 
+    
+    console.log(
+      `Filtreleme sonucunda ${result.rows.length} lisans kaydı bulundu`
+    );
+
+    
     // Sonuçları döndür
     res.status(200).json(result.rows);
   } catch (error) {
@@ -509,17 +540,19 @@ app.get("/api/bayiler/:id", async (req, res) => {
 app.get("/api/paketler/:id", async (req, res) => {
   try {
     const connection = req.db || (await getConnection());
-    
+
     // Paketi çek
     const paketResult = await connection.query(
       "SELECT * FROM paketler WHERE id = $1",
       [req.params.id]
     );
-    
+
     if (paketResult.rows.length === 0) {
-      return res.status(404).json({ message: "Bu ID'ye sahip paket bulunamadı" });
+      return res
+        .status(404)
+        .json({ message: "Bu ID'ye sahip paket bulunamadı" });
     }
-    
+
     // Paketi doğrudan döndür
     res.status(200).json(paketResult.rows);
   } catch (error) {
@@ -672,20 +705,13 @@ app.put("/api/paketler/:id", async (req, res) => {
   try {
     const { paket_kodu, paket_adi, paket_aciklama, items } = req.body;
 
-  
     // Array'i JSON string'e dönüştür
     const itemsJson = JSON.stringify(items);
 
     const connection = req.db || (await getConnection());
     const result = await connection.query(
       'UPDATE paketler SET "paket_kodu" = $1, "paket_adi" = $2, "paket_aciklama" = $3, "paket_modul" = $4 WHERE id = $5 RETURNING *',
-      [
-        paket_kodu,
-        paket_adi,
-        paket_aciklama,
-        itemsJson,
-        req.params.id,
-      ]
+      [paket_kodu, paket_adi, paket_aciklama, itemsJson, req.params.id]
     );
 
     if (result.rows.length === 0) {
@@ -700,9 +726,7 @@ app.put("/api/paketler/:id", async (req, res) => {
     });
   } catch (error) {
     console.error("Paket güncellenirken hata oluştu:", error);
-    res
-      .status(500)
-      .json({ message: "Paket güncellenemedi: " + error.message });
+    res.status(500).json({ message: "Paket güncellenemedi: " + error.message });
   }
 });
 // Modül güncelleme API
@@ -713,12 +737,7 @@ app.put("/api/moduller/:id", async (req, res) => {
     const connection = req.db || (await getConnection());
     const result = await connection.query(
       'UPDATE moduller SET "modul_kodu" = $1, "modul_adi" = $2, "modul_aciklama" = $3 WHERE id = $4 RETURNING *',
-      [
-        modul_kodu,
-        modul_adi,
-        modul_aciklama,
-        req.params.id,
-      ]
+      [modul_kodu, modul_adi, modul_aciklama, req.params.id]
     );
 
     if (result.rows.length === 0) {
@@ -733,9 +752,7 @@ app.put("/api/moduller/:id", async (req, res) => {
     });
   } catch (error) {
     console.error("Modül güncellenirken hata oluştu:", error);
-    res
-      .status(500)
-      .json({ message: "Modül güncellenemedi: " + error.message });
+    res.status(500).json({ message: "Modül güncellenemedi: " + error.message });
   }
 });
 // Bayi güncelleme API
@@ -999,9 +1016,9 @@ app.put("/api/lisanslar/:id/toggle-aktif", async (req, res) => {
     });
   } catch (error) {
     console.error("Lisans aktif durumu güncellenirken hata oluştu:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Lisans aktif durumu güncellenemedi",
-      error: error.message 
+      error: error.message,
     });
   }
 });
@@ -1028,9 +1045,9 @@ app.put("/api/lisanslar/:id/toggle-kilit", async (req, res) => {
     });
   } catch (error) {
     console.error("Lisans kilit durumu güncellenirken hata oluştu:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Lisans kilit durumu güncellenemedi",
-      error: error.message 
+      error: error.message,
     });
   }
 });
