@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Edit } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -151,9 +151,9 @@ export const columns = [
   {
     accessorKey: "yetkili",
     header: () => <div className="text-center w-full py-2 my-1.5">Yetkili</div>,
-    size: 100,
-    minSize: 100,
-    maxSize: 140,
+    size: 80,
+    minSize: 80,
+    maxSize: 130,
     cell: ({ row }) => {
       const value = row.getValue("yetkili");
       return (
@@ -232,8 +232,8 @@ export const columns = [
   },{
     accessorKey: "aktif",
     header: () => <div className="text-center w-full py-2">Aktif</div>,
-    size: 130,
-    minSize: 130,
+    size: 8,
+    minSize: 80,
     maxSize: 180,
     cell: ({ row, table }) => {
       const initialValue = row.getValue("aktif");
@@ -290,9 +290,9 @@ export const columns = [
   },  {
     accessorKey: "kilit",
     header: () => <div className="text-center w-full py-2">Kilit</div>,
-    size: 130,
-    minSize: 130,
-    maxSize: 180,
+    size: 50,
+    minSize: 70,
+    maxSize: 50,
     cell: ({ row, table }) => {
       const initialValue = row.getValue("kilit");
       const [isChecked, setIsChecked] = useState(initialValue);
@@ -353,23 +353,24 @@ export const columns = [
     header: () => (
       <div className="text-center w-full py-2 my-1.5">Düzenle</div>
     ),
-    size: 120,
-    minSize: 120,
-    maxSize: 140,
+    size: 80,
+    minSize: 60,
+    maxSize: 80,
     cell: ({ row }) => {
       const navigate = useNavigate();
       // const value = row.getValue("lisans_suresi");
       return (
-        <div className="text-center w-full px-3 py-2 border-r border-gray-200">
-          <Button
+        <div className="text-center w-full px-3 py-2 border-r border-gray-200">          <Button
             variant="outline"
-            className="w-full"
+            size="icon"
+            className="w-10 h-10 mx-auto"
             onClick={() => {
                         navigate(`/lisansduzenle/${row.original.id}`);
                         console.log("Row clicked:", row.original);
                       }}
           >
-            Düzenle
+            <Edit className="h-4 w-4" />
+            <span className="sr-only">Düzenle</span>
           </Button>
         </div>
       );

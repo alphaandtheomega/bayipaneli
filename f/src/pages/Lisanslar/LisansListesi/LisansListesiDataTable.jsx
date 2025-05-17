@@ -900,7 +900,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                           variant="outline"
                           role="combobox"
                           aria-expanded={openIller}
-                          className="w-full justify-between bg-white border-slate-300 h-8 text-m shadow-sm shadow-blue-200"
+                          className="w-full justify-between bg-white border-slate-300 h-8 text-sm shadow-sm shadow-blue-200"
                           {...field}
                         >
                           {field.value
@@ -1089,7 +1089,7 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
                           width: header.column.columnDef.size,
                           minWidth: header.column.columnDef.minSize,
                           maxWidth: header.column.columnDef.maxSize,
-                          textShadow: "0 1px 2px rgba(0, 0, 0, 0.5)",
+                          
                         }}
                         className="px-2 py-0 whitespace-nowrap text-white bg-[#a390cd]"
                       >

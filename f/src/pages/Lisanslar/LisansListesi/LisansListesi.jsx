@@ -59,13 +59,13 @@ export default function LisansListesi() {
   return (
     <div className="h-full w-full">
       <div className="h-full w-full p-1">
-        <div className="bg-white p-4 rounded-lg shadow-md  grid grid-cols-1 ">
-          <div className="p-4 border-b">
+        <div className="bg-white p-4 rounded-lg shadow-md grid grid-cols-1 ">
+          <div className="py-2 pl-4 border-b bg-[#a390cd] rounded-t-lg">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">Lisans Listesi</h1>
-              
+              <h1 className="text-2xl font-bold text-white">Lisans Listesi</h1>
             </div>
-          </div>          <div className="flex-1 p-4 min-h-0">
+          </div>
+          <div className="flex-1 p-4 min-h-0">
             <div className="h-full overflow-hidden">
               <DataTable columns={columns} data={data || []} refetch={refetch} />
             </div>
