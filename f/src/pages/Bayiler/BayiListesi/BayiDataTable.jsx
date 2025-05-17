@@ -278,10 +278,10 @@ export function DataTable({ columns, data, refetch }) {
                     </FormItem>
                     )}
                   />
-                  <div className="flex items-end">
-                    <Button
+                  <div className="flex items-end">                    <Button
                     type="submit"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white h-8 text-sm px-3 py-0 pl-4 pr-4"
+                    variant="default"
+                    size="sm"
                     >
                     ARA
                     </Button>
@@ -295,10 +295,10 @@ export function DataTable({ columns, data, refetch }) {
           value={filtering}
           onChange={(e) => setFiltering(e.target.value)}
           className="max-w-sm h-8"
-        />
-        <Button
+        />        <Button
           onClick={refreshData}
-          className="bg-green-600 hover:bg-green-700 text-white h-8 text-sm px-3 py-0"
+          variant="success"
+          size="sm"
         >
           Yenile
         </Button>
@@ -375,12 +375,12 @@ export function DataTable({ columns, data, refetch }) {
         <div className="text-sm text-muted-foreground">
           Toplam {table.getFilteredRowModel().rows.length} kayıt
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
+        <div className="flex items-center gap-2">          <Button
+            variant="secondary"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="font-medium"
           >
             Önceki
           </Button>
@@ -389,12 +389,12 @@ export function DataTable({ columns, data, refetch }) {
               Sayfa{" "}
               {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
             </span>
-          </div>
-          <Button
-            variant="outline"
+          </div>          <Button
+            variant="secondary"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="font-medium"
           >
             Sonraki
           </Button>

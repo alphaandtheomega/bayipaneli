@@ -1155,12 +1155,12 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
         <div className="text-sm text-muted-foreground">
           Toplam {table.getFilteredRowModel().rows.length} kayıt
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
+        <div className="flex items-center gap-2">          <Button
+            variant="secondary"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="font-medium"
           >
             Önceki
           </Button>
@@ -1169,9 +1169,8 @@ export function LisansListesiDataTable({ columns, data, refetch }) {
               Sayfa {table.getState().pagination.pageIndex + 1} /{" "}
               {table.getPageCount()}
             </span>
-          </div>
-          <Button
-            variant="outline"
+          </div>          <Button
+            variant="secondary"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}

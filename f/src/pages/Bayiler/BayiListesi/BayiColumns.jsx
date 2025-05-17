@@ -13,10 +13,10 @@ export const columns = [
   },
   {
     accessorKey: "bayi_kodu",
-    header: ({ column }) => (
-      <Button
+    header: ({ column }) => (      <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="w-full justify-center py-2 font-semibold text-gray-700 hover:text-gray-900"
       >
         Bayi Kodu
         <ArrowUpDown className="ml-2 h-4 w-4" />

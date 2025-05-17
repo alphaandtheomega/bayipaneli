@@ -340,18 +340,20 @@ const {
             <div className="flex justify-end mt-5">
               <Button
                 type="button"
+                variant="destructive"
+                size="lg"
                 onClick={() => {
                   form.reset();
                   navigate("/paketlistesi");
                 }}
-                className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-4 py-2 mr-2"
               >
                 İptal
               </Button>
               <Button
                 type="submit"
-                
-                className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 text-sm px-4 py-2"
+                variant="success"
+                size="lg"
+                className="ml-3"
               >
                 Paketi Kaydet
               </Button>

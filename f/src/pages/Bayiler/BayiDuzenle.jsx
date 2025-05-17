@@ -1211,14 +1211,14 @@ export default function BayiDuzenle() {
                 )}
               />
 
-              <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-2 md:flex-row md:items-end mt-5">
-                <Button
+              <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-2 md:flex-row md:items-end mt-5">                <Button
                   type="button"
                   onClick={() => {
                     form.reset();
                     navigate("/bayilistesi/");
                   }}
-                  className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-3 py-0 pl-4 pr-4"
+                  variant="destructive"
+                  size="lg"
                 >
                   İptal
                 </Button>
@@ -1226,7 +1226,8 @@ export default function BayiDuzenle() {
                 <Button
                   type="submit"
                   disabled={handleBayiMutation.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 text-sm px-3 py-0 pl-4 pr-4"
+                  variant="info"
+                  size="lg"
                 >
                   {handleBayiMutation.isPending
                     ? "Gönderiliyor..."

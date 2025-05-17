@@ -751,24 +751,28 @@ export default function LisansDuzenle() {
             </div>
 
             {/* Butonlar */}
-            <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-3 md:flex-row md:items-end mt-5">
-              <Button
-                type="button"
-                onClick={() => form.reset()}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 h-10 text-sm px-4 py-0 rounded-lg shadow font-semibold border border-gray-300 min-h-0"
-              >
-                İptal
-              </Button>
-              <Button
-                type="submit"
-                className="bg-blue-800 hover:bg-blue-700 text-white h-10 text-sm px-4 py-0 rounded-lg shadow font-semibold border-0 min-h-0"
-              >
-                Kaydet
-              </Button>
-            </div>
-          </form>
-        </Form>
-        {/* Lisans kodu gösteren dialog */}
+            <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-3 md:flex-row md:items-end mt-5">                          <Button
+                  type="button"
+                  onClick={() => {
+                    form.reset();
+                    navigate("/lisanslistesi");
+                  }}
+                  variant="secondary"
+                  size="lg"
+                >
+                  İptal
+                </Button>
+                <Button
+                  type="submit"
+                  variant="info"
+                  size="lg"
+                >
+                  Kaydet
+                </Button>
+              </div>
+            </form>
+          </Form>
+          {/* Lisans kodu gösteren dialog */}
         <Dialog open={showLisansDialog} onOpenChange={setShowLisansDialog}>
           <DialogContent className="max-w-md">
             <DialogHeader>

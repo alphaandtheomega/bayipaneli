@@ -700,13 +700,13 @@ export default function MusteriEkle() {
                           refetchCities();
                         }
                       }}
-                    >
-                      <PopoverTrigger asChild>
+                    >                      <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           role="combobox"
+                          size="default"
                           aria-expanded={openIller}
-                          className="w-full justify-between bg-white border-slate-300 hover:bg-slate-50 h-8 text-m font-normal shadow-sm shadow-blue-200"
+                          className="w-full justify-between text-gray-700"
                         >
                           {field.value
                             ? iller.find((il) => il.value === field.value)
@@ -769,13 +769,13 @@ export default function MusteriEkle() {
                     İlçe
                   </FormLabel>
                   <FormControl>
-                    <Popover open={openIlceler} onOpenChange={setOpenIlceler}>
-                      <PopoverTrigger asChild>
+                    <Popover open={openIlceler} onOpenChange={setOpenIlceler}>                      <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           role="combobox"
+                          size="default"
                           aria-expanded={openIlceler}
-                          className="w-full justify-between bg-white border-slate-300 hover:bg-slate-50 h-8 text-m font-normal shadow-sm shadow-blue-200"
+                          className="w-full justify-between text-gray-700"
                           disabled={!selectedIl}
                         >
                           {field.value
@@ -853,18 +853,20 @@ export default function MusteriEkle() {
             )}
           />
 
-          <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-2 md:flex-row md:items-end mt-5">
+          <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-3 md:flex-row md:items-end mt-5">
             <Button
               type="button"
               onClick={() => form.reset()}
-              className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-3 py-0 pl-4 pr-4 mr-5 "
+              variant="destructive"
+              size="lg"
             >
               İptal
             </Button>
 
             <Button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 text-sm px-3 py-0 pl-4 pr-4"
+              variant="success"
+              size="lg"
             >
               Kaydet
             </Button>

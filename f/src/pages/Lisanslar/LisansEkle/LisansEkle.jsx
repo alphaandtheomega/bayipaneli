@@ -482,8 +482,9 @@ export default function LisansEkle() {
                             <Button
                               variant="outline"
                               role="combobox"
+                              size="default"
                               aria-expanded={openBayi}
-                              className="w-full justify-between bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-medium text-gray-800 hover:bg-gray-50 min-h-0 placeholder:font-normal placeholder:text-gray-400"
+                              className="w-full justify-between text-gray-700"
                             >
                               <span
                                 className={
@@ -567,13 +568,13 @@ export default function LisansEkle() {
                             setOpenMusteri(open);
                             if (open) refetchMusteri();
                           }}
-                        >
-                          <PopoverTrigger asChild>
+                        >                          <PopoverTrigger asChild>
                             <Button
                               variant="outline"
                               role="combobox"
+                              size="default"
                               aria-expanded={openMusteri}
-                              className="w-full justify-between bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-medium text-gray-800 hover:bg-gray-50 min-h-0 placeholder:font-normal placeholder:text-gray-400"
+                              className="w-full justify-between text-gray-700"
                             >
                               <span
                                 className={
@@ -659,13 +660,13 @@ export default function LisansEkle() {
                             setOpenPaket(open);
                             if (open) refetchPaketler();
                           }}
-                        >
-                          <PopoverTrigger asChild>
+                        >                          <PopoverTrigger asChild>
                             <Button
                               variant="outline"
                               role="combobox"
+                              size="default"
                               aria-expanded={openPaket}
-                              className="w-full justify-between bg-white border border-gray-400 rounded shadow-sm h-8 text-sm font-medium text-gray-800 hover:bg-gray-50 min-h-0 placeholder:font-normal placeholder:text-gray-400"
+                              className="w-full justify-between text-gray-700"
                             >
                               <span
                                 className={
@@ -891,17 +892,18 @@ export default function LisansEkle() {
             </div>
 
             {/* Butonlar */}
-            <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-3 md:flex-row md:items-end mt-5">
-              <Button
+            <div className="flex flex-col justify-end space-y-2 md:space-y-0 md:space-x-3 md:flex-row md:items-end mt-5">              <Button
                 type="button"
                 onClick={() => form.reset()}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 h-10 text-sm px-4 py-0 rounded-lg shadow font-semibold border border-gray-300 min-h-0"
+                variant="secondary"
+                size="lg"
               >
                 İptal
               </Button>
               <Button
                 type="submit"
-                className="bg-blue-800 hover:bg-blue-700 text-white h-10 text-sm px-4 py-0 rounded-lg shadow font-semibold border-0 min-h-0"
+                variant="default"
+                size="lg"
               >
                 Kaydet
               </Button>

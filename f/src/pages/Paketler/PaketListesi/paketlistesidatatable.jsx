@@ -117,17 +117,17 @@ export default function PaketListesiDataTable({ columns, data }) {  const { id }
               </DialogDescription>
             </DialogHeader>
             <div className="border-t border-gray-100 my-4"></div>
-            <DialogFooter className="flex sm:justify-end gap-3 mt-6">
-              <Button
+            <DialogFooter className="flex sm:justify-end gap-3 mt-6">              <Button
                 onClick={() => setOpenDeleteDialog(false)}
                 variant="outline"
-                className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg px-5 py-2.5"
+                size="lg"
               >
                 İptal
               </Button>
               <Button
                 onClick={handleDelete}
-                className="bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-all duration-200 px-5 py-2.5 flex items-center "
+                variant="destructive"
+                size="lg"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -189,17 +189,18 @@ export default function PaketListesiDataTable({ columns, data }) {  const { id }
                       )}
                     </TableCell>
                   ))}
-                  <TableCell className="flex justify-end gap-2">
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1.5 text-xs font-medium shadow-sm transition-colors"
+                  <TableCell className="flex justify-end gap-2">                    <Button
+                      variant="info"
+                      size="sm"
                       onClick={() => {
                         navigate(`/paketduzenle/${row.original.id}`);
                         console.log("Row clicked:", row.original);
                       }}
                     >
                       Düzenle
-                    </Button>
-                    <Button
+                    </Button>                    <Button
+                      variant="destructive"
+                      size="sm"
                       onClick={() => {
                         // Paket ID'sini sakla ve dialog'u aç
                         setSelectedPaketId(row.original.id);
@@ -209,11 +210,10 @@ export default function PaketListesiDataTable({ columns, data }) {  const { id }
                           row.original.id
                         );
                       }}
-                      className="bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-all duration-200 px-5 py-2 flex items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-2"
+                        className="h-4 w-4 mr-1.5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -247,12 +247,12 @@ export default function PaketListesiDataTable({ columns, data }) {  const { id }
         <div className="text-sm text-muted-foreground">
           Toplam {table.getFilteredRowModel().rows.length} kayıt
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
+        <div className="flex items-center gap-2">          <Button
+            variant="secondary"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="font-medium"
           >
             Önceki
           </Button>
@@ -261,12 +261,12 @@ export default function PaketListesiDataTable({ columns, data }) {  const { id }
               Sayfa {table.getState().pagination.pageIndex + 1} /{" "}
               {table.getPageCount()}
             </span>
-          </div>
-          <Button
-            variant="outline"
+          </div>          <Button
+            variant="secondary"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="font-medium"
           >
             Sonraki
           </Button>

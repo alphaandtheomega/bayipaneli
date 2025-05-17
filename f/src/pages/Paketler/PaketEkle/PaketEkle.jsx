@@ -260,18 +260,19 @@ const {
           )}
         />
             </div>
-            
-            <div className="flex justify-end mt-5">
+              <div className="flex justify-end mt-5 gap-3">
               <Button
                 type="button"
                 onClick={() => form.reset()}
-                className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-4 py-2 mr-2"
+                variant="destructive"
+                size="lg"
               >
                 İptal
               </Button>
               <Button
                 type="submit"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 text-sm px-4 py-2"
+                variant="default"
+                size="lg"
               >
                 Kaydet
               </Button>

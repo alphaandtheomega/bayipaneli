@@ -44,10 +44,9 @@ export default function BayiListesi() {
         <div className="flex flex-col justify-center items-center h-32">
           <div className="text-red-500 mb-2">
             Veri yüklenirken bir hata oluştu
-          </div>
-          <button 
+          </div>          <button 
             onClick={() => refetch()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
           >
             Yeniden Dene
           </button>

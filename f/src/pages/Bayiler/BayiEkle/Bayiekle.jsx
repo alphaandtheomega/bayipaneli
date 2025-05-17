@@ -1157,14 +1157,16 @@ export default function BayiEkle() {
             <Button
               type="button"
               onClick={() => form.reset()}
-              className="bg-red-800 hover:bg-red-500 text-white h-10 text-sm px-3 py-0 pl-4 pr-4"
+              variant="destructive"
+              size="lg"
             >
               İptal
             </Button>
             
             <Button
               type="button"
-              className="bg-blue-600 hover:bg-blue-700 text-white h-10 text-sm px-2 py-0 pl-4 pr-4"
+              variant="info"
+              size="lg"
               onClick={() => {
                 const unvan = form.getValues("unvan");
                 let prefix = "";

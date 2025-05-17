@@ -14,11 +14,10 @@ export const columns = [
   
   {
     accessorKey: "lisans_kodu",
-    header: ({ column }) => (
-      <Button
+    header: ({ column }) => (      <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="w-full justify-center py-2"
+        className="w-full justify-center py-2 font-semibold text-gray-700 hover:text-gray-900"
       >
         Lisans Kodu
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -361,9 +360,9 @@ export const columns = [
       // const value = row.getValue("lisans_suresi");
       return (
         <div className="text-center w-full px-3 py-2 border-r border-gray-200">          <Button
-            variant="outline"
-            size="icon"
-            className="w-10 h-10 mx-auto"
+            variant="info"
+            size="icon-sm"
+            className="mx-auto"
             onClick={() => {
                         navigate(`/lisansduzenle/${row.original.id}`);
                         console.log("Row clicked:", row.original);
